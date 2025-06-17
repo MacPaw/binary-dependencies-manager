@@ -4,18 +4,18 @@
             "type": "swift",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:BinaryDependencyManager}",
+            "cwd": "${workspaceFolder:binary-dependencies-manager}",
             "name": "Debug BinaryDependenciesManager",
-            "program": "${workspaceFolder:BinaryDependencyManager}/.build/debug/BinaryDependenciesManager",
+            "program": "${workspaceFolder:binary-dependencies-manager}/.build/debug/BinaryDependenciesManager",
             "preLaunchTask": "swift: Build Debug BinaryDependenciesManager"
         },
         {
             "type": "swift",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:BinaryDependencyManager}",
+            "cwd": "${workspaceFolder:binary-dependencies-manager}",
             "name": "Release BinaryDependenciesManager",
-            "program": "${workspaceFolder:BinaryDependencyManager}/.build/release/BinaryDependenciesManager",
+            "program": "${workspaceFolder:binary-dependencies-manager}/.build/release/BinaryDependenciesManager",
             "preLaunchTask": "swift: Build Release BinaryDependenciesManager"
         }
     ]

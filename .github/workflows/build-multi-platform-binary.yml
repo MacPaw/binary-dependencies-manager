@@ -1,0 +1,73 @@
+name: Build Multi-Platform Binary
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-binary:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: macOS
+            arch: universal
+          - os: macos-latest
+            platform: macOS
+            arch: arm64
+          - os: macos-latest
+            platform: macOS
+            arch: x86_64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x86_64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get latest tag and checkout
+      id: get-tag
+      run: ./.github/workflows/scripts/build-multi-platform-binary/get-latest-tag.sh
+
+    - name: Check or create release
+      id: check-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.get-tag.outputs.tag_name }}
+      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-release.js
+
+    - name: Check if asset already exists
+      id: check-asset
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_ID: ${{ steps.check-release.outputs.release_id }}
+        TAG_NAME: ${{ steps.get-tag.outputs.tag_name }}
+        PLATFORM: ${{ matrix.platform }}
+        ARCH: ${{ matrix.arch }}
+      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-asset.js
+
+    - name: Build binary
+      id: build
+      if: steps.check-asset.outputs.asset_exists == 'false'
+      env:
+        TAG_NAME: ${{ steps.get-tag.outputs.tag_name }}
+        PLATFORM: ${{ matrix.platform }}
+        ARCH: ${{ matrix.arch }}
+      run: ./.github/workflows/scripts/build-multi-platform-binary/build-binary.sh
+
+    - name: Upload asset to release
+      if: steps.build.conclusion == 'success'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_ID: ${{ steps.check-release.outputs.release_id }}
+        ASSET_PATH: ${{ steps.build.outputs.asset_path }}
+        ASSET_NAME: ${{ steps.build.outputs.asset_name }}
+      run: node ./.github/workflows/scripts/build-multi-platform-binary/upload-asset.js
