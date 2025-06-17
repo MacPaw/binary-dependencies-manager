@@ -1,6 +1,6 @@
-# BinaryDependenciesManager
+# binary-dependencies-manager
 
-BinaryDependenciesManager is a Swift-based tool for managing and resolving binary dependencies from GitHub releases. It automates the process of downloading, verifying, and extracting binary artifacts (such as frameworks or libraries) from GitHub repositories, making it easy to integrate prebuilt binaries into your projects.
+binary-dependencies-manager is a Swift-based tool for managing and resolving binary dependencies from GitHub releases. It automates the process of downloading, verifying, and extracting binary artifacts (such as frameworks or libraries) from GitHub repositories, making it easy to integrate prebuilt binaries into your projects.
 
 ## Features
 - Download binary artifacts from GitHub releases using the GitHub CLI (`gh`)
@@ -11,10 +11,34 @@ BinaryDependenciesManager is a Swift-based tool for managing and resolving binar
 ## Requirements
 - Swift 5.9+
 - macOS 11+
-- [GitHub CLI (`gh`)](https://cli.github.com/) must be installed and available in your PATH
+- [GitHub CLI (`gh`)](https://cli.github.com/) must be installed, authenticated and available in your PATH
 
 ## Installation
-Build the tool using the provided script:
+
+### mise
+
+1. Add the env to your `.mise.toml` file to allow mise to use GitHub API token to download release assets from the provate repo:
+    ```toml
+    [env]
+    MISE_GITHUB_TOKEN = "{{ exec(command='$(which gh || mise which gh) auth token || echo \"\"') }}"
+    ```
+    > ⚠️ This requires installed and authenticated GitHub CLI (`gh`) tool.
+
+    > ℹ️ mise runs `sh` and PATH env var is not resolved, that's why we need to use `which gh`.
+    >
+    > `|| echo ""` will not lead to immediate fail while mise is resolving ENV, but will fail when mise attempts to download the binary from the GitHub, if GitHub CLI has no authentication info.
+
+2. Add `binary-dependencies-manager` to the `[tools]` section in your `.mise.toml`
+    ```toml
+    [tools]
+    "ubi:MacPaw/binary-dependencies-manager" = "latest"
+    ```
+
+3. Run `mise install`.
+
+### Manual
+1. Clone the repository.
+2. Build the tool using the provided script:
 
 ```sh
 ./compile_and_update_binary.sh
@@ -26,7 +50,7 @@ This will build the binary and place it in the `Binary/` directory.
 Run the tool by specifying the required paths:
 
 ```sh
-./Binary/BinaryDependenciesManager \
+./Binary/binary-dependencies-manager \
   --dependencies path/to/dependencies.json \
   --cache path/to/cache \
   --output path/to/output
@@ -71,6 +95,14 @@ Run the tool by specifying the required paths:
   - Use the `contents` field to specify the subdirectory to extract.
 - **Organize outputs:**
   - Use the `output` field to place the extracted files in a custom-named subdirectory under your output directory.
+
+## Release
+
+You have two options:
+1. Create a new tag locally and push it.
+2. Create a release manually on the GitHub.
+
+After tag is created the `Build Multi-Platform Binary` action will be executed. It will build and add all binaries to the release assets.
 
 ## License
 MIT 

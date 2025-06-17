@@ -26,7 +26,7 @@ async function checkAsset() {
 
   // Extract version from tag (remove 'v' prefix if present)
   const version = tagName.replace(/^v/, '');
-  const expectedAssetName = `BinaryDependenciesManager-${version}-${platform}-${arch}.zip`;
+  const expectedAssetName = `binary-dependencies-manager-${version}-${platform}-${arch}.zip`;
 
   console.log(`Checking for asset: ${expectedAssetName} in release ${releaseId}`);
 

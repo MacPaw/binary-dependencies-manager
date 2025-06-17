@@ -4,10 +4,10 @@ set -e
 
 # Extract version from tag (remove 'v' prefix if present)
 VERSION=${TAG_NAME#v}
-BINARY_NAME="BinaryDependenciesManager"
+BINARY_NAME="binary-dependencies-manager"
 PLATFORM=${PLATFORM:-macOS}
 ARCH=${ARCH:-universal}
-ARCHIVE_NAME="BinaryDependenciesManager-${PLATFORM}-${ARCH}-${VERSION}.zip"
+ARCHIVE_NAME="${BINARY_NAME}-${VERSION}-${PLATFORM}-${ARCH}.zip"
 
 echo "Building binary for platform: $PLATFORM, architecture: $ARCH, version: $VERSION"
 
@@ -20,7 +20,10 @@ if [ "$PLATFORM" == "macOS" ] && [ "$ARCH" == "universal" ]; then
     swift build --configuration release --arch x86_64 --arch arm64
     cp .build/apple/Products/Release/$BINARY_NAME build/$BINARY_NAME
 
-elif [ "$PLATFORM" == "macOS" ] && [ "$ARCH" == "arm64" || "$ARCH" == "x86_64" ]; then
+    # Verify the universal binary
+    echo "Verifying universal binary..."
+    lipo -info build/$BINARY_NAME
+elif [ "$PLATFORM" == "macOS" ] && [[ "$ARCH" == "arm64" || "$ARCH" == "x86_64" ]]; then
 
     # Build $ARCH binary for macOS
     echo "Building $ARCH binary for macOS..."

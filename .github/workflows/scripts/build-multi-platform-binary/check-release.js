@@ -1,41 +1,8 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 
-async function generateReleaseNotes(owner, repo, tagName, token) {
-  console.log(`Generating release notes for tag: ${tagName}`);
-
-  try {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/generate-notes`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'GitHub-Actions',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        tag_name: tagName
-      })
-    });
-
-    if (response.status === 200) {
-      const releaseNotes = await response.json();
-      return releaseNotes.body;
-    } else {
-      console.warn(`Failed to generate release notes: ${response.status}`);
-      return `Release ${tagName}`;
-    }
-  } catch (error) {
-    console.warn('Error generating release notes:', error.message);
-    return `Release ${tagName}`;
-  }
-}
-
 async function createRelease(owner, repo, tagName, token) {
   console.log(`Creating release for tag: ${tagName}`);
-
-  // Generate release notes
-  const releaseBody = await generateReleaseNotes(owner, repo, tagName, token);
 
   try {
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases`, {
@@ -48,11 +15,10 @@ async function createRelease(owner, repo, tagName, token) {
       },
       body: JSON.stringify({
         tag_name: tagName,
-        name: `Release ${tagName}`,
-        body: releaseBody,
+        name: tagName,
         draft: false,
         prerelease: false,
-        generate_release_notes: false // We already generated them manually
+        generate_release_notes: true
       })
     });
 

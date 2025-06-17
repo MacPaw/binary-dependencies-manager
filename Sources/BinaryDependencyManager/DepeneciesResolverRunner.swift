@@ -1,4 +1,4 @@
-import CryptoKit
+import Crypto
 import Foundation
 
 struct DependenciesResolverRunner {
@@ -62,11 +62,11 @@ struct DependenciesResolverRunner {
 
     private func resolveGithibCLIPath() throws -> String {
         let process = Process()
-        process.launchPath = "/usr/bin/which"
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
         process.arguments = ["gh"]
         let pipe = Pipe()
         process.standardOutput = pipe
-        process.launch()
+        try process.run()
         process.waitUntilExit()
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         guard let githubCommandLineToolPath = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
@@ -208,15 +208,37 @@ struct DependenciesResolverRunner {
     }
 
     private func calculateChecksum(path: String) throws -> String {
-        let handle = try FileHandle(forReadingFrom: URL(fileURLWithPath: path))
-        var hasher = SHA256()
+        // Read the file in chunks to avoid RAM issues
+
+        let handle: FileHandle = try FileHandle(forReadingFrom: URL(fileURLWithPath: path))
+        var hasher: SHA256 = SHA256()
+
+        #if os(macOS)
+
         while autoreleasepool(invoking: {
             let nextChunk = handle.readData(ofLength: 1024 * 1024)
             guard !nextChunk.isEmpty else { return false }
             hasher.update(data: nextChunk)
             return true
         }) {}
-        let digest = hasher.finalize()
+
+        #elseif os(Linux)
+
+        var eof: Bool = false
+        var nextChunk: Data
+
+        while !eof {
+            nextChunk = handle.readData(ofLength: 1024 * 1024)
+            eof = nextChunk.isEmpty
+            if !eof {
+                hasher.update(data: nextChunk)
+            }
+        }
+
+        #endif
+
+        let digest: SHA256.Digest = hasher.finalize()
+
         return digest.map { String(format: "%02hhx", $0) }.joined()
     }
 }
