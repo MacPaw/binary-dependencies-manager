@@ -4,10 +4,10 @@ set -e
 
 # Extract version from tag (remove 'v' prefix if present)
 VERSION=${TAG_NAME#v}
-BINARY_NAME="BinaryDependenciesManager"
+BINARY_NAME="binary-dependencies-manager"
 PLATFORM=${PLATFORM:-macOS}
 ARCH=${ARCH:-universal}
-ARCHIVE_NAME="BinaryDependenciesManager-${PLATFORM}-${ARCH}-${VERSION}.zip"
+ARCHIVE_NAME="${BINARY_NAME}-${VERSION}-${PLATFORM}-${ARCH}.zip"
 
 echo "Building binary for platform: $PLATFORM, architecture: $ARCH, version: $VERSION"
 
