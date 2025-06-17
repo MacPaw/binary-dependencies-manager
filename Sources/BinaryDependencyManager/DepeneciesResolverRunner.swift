@@ -62,11 +62,11 @@ struct DependenciesResolverRunner {
 
     private func resolveGithibCLIPath() throws -> String {
         let process = Process()
-        process.launchPath = "/usr/bin/which"
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
         process.arguments = ["gh"]
         let pipe = Pipe()
         process.standardOutput = pipe
-        process.launch()
+        try process.run()
         process.waitUntilExit()
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         guard let githubCommandLineToolPath = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
