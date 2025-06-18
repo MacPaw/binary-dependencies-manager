@@ -9,7 +9,31 @@ on:
       - '*'
 
 jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.get-tag.outputs.tag_name }}
+      release_id: ${{ steps.check-release.outputs.release_id }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get latest tag and checkout
+      id: get-tag
+      run: ./.github/workflows/scripts/build-multi-platform-binary/get-latest-tag.sh
+
+    - name: Check or create release
+      id: check-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.get-tag.outputs.tag_name }}
+      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-release.js
+
   build-binary:
+    needs: create-release
     strategy:
       matrix:
         include:
@@ -33,23 +57,15 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Get latest tag and checkout
-      id: get-tag
-      run: ./.github/workflows/scripts/build-multi-platform-binary/get-latest-tag.sh
-
-    - name: Check or create release
-      id: check-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAG_NAME: ${{ steps.get-tag.outputs.tag_name }}
-      run: node ./.github/workflows/scripts/build-multi-platform-binary/check-release.js
+    - name: Checkout tag
+      run: git checkout ${{ needs.create-release.outputs.tag_name }}
 
     - name: Check if asset already exists
       id: check-asset
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        RELEASE_ID: ${{ steps.check-release.outputs.release_id }}
-        TAG_NAME: ${{ steps.get-tag.outputs.tag_name }}
+        RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+        TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
         PLATFORM: ${{ matrix.platform }}
         ARCH: ${{ matrix.arch }}
       run: node ./.github/workflows/scripts/build-multi-platform-binary/check-asset.js
@@ -58,7 +74,7 @@ jobs:
       id: build
       if: steps.check-asset.outputs.asset_exists == 'false'
       env:
-        TAG_NAME: ${{ steps.get-tag.outputs.tag_name }}
+        TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
         PLATFORM: ${{ matrix.platform }}
         ARCH: ${{ matrix.arch }}
       run: ./.github/workflows/scripts/build-multi-platform-binary/build-binary.sh
@@ -67,7 +83,7 @@ jobs:
       if: steps.build.conclusion == 'success'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        RELEASE_ID: ${{ steps.check-release.outputs.release_id }}
+        RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
         ASSET_PATH: ${{ steps.build.outputs.asset_path }}
         ASSET_NAME: ${{ steps.build.outputs.asset_name }}
       run: node ./.github/workflows/scripts/build-multi-platform-binary/upload-asset.js

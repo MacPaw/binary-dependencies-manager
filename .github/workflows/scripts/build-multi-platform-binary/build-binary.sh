@@ -20,7 +20,10 @@ if [ "$PLATFORM" == "macOS" ] && [ "$ARCH" == "universal" ]; then
     swift build --configuration release --arch x86_64 --arch arm64
     cp .build/apple/Products/Release/$BINARY_NAME build/$BINARY_NAME
 
-elif [ "$PLATFORM" == "macOS" ] && [ "$ARCH" == "arm64" || "$ARCH" == "x86_64" ]; then
+    # Verify the universal binary
+    echo "Verifying universal binary..."
+    lipo -info build/$BINARY_NAME
+elif [ "$PLATFORM" == "macOS" ] && [[ "$ARCH" == "arm64" || "$ARCH" == "x86_64" ]]; then
 
     # Build $ARCH binary for macOS
     echo "Building $ARCH binary for macOS..."
