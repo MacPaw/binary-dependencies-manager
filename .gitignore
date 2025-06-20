@@ -8,3 +8,4 @@ DerivedData/
 .netrc
 *.zip
 Binary/binary-dependencies-manager
+/.swiftpm
