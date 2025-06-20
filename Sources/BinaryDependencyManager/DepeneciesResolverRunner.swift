@@ -1,5 +1,6 @@
 import Crypto
 import Foundation
+import Utils
 
 public struct DependenciesResolverRunner {
     let dependenciesJSONPath: String

@@ -25,8 +25,9 @@ let package = Package(
         .executableTarget(
             name: "CommandLine",
             dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 "BinaryDependencyManager",
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
+                "Utils",
             ]
         ),
         
@@ -34,8 +35,11 @@ let package = Package(
             name: "BinaryDependencyManager",
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
+                "Utils"
             ]
         ),
+        
+        .target(name: "Utils"),
 
         .testTarget(
             name: "BinaryDependencyManagerTests",
