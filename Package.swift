@@ -18,6 +18,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.5.1")),
         .package(url: "https://github.com/apple/swift-crypto.git", .upToNextMajor(from: "3.12.3")),
+        .package(url: "https://github.com/jpsim/Yams.git", .upToNextMajor(from: "6.0.1")),
     ],
 
     targets: [
@@ -28,6 +29,7 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "Yams", package: "Yams"),
             ]
         ),
 
