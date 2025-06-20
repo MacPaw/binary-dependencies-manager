@@ -12,8 +12,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .executable(
             name: "binary-dependencies-manager",
-            targets: ["binary_dependencies_manager"]
-        ),
+            targets: ["CommandLine"]
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.5.1")),
@@ -21,19 +21,27 @@ let package = Package(
     ],
 
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        
         .executableTarget(
-            name: "binary_dependencies_manager",
+            name: "CommandLine",
             dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                "BinaryDependencyManager",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        ),
+        
+        .target(
+            name: "BinaryDependencyManager",
+            dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
             ]
         ),
 
         .testTarget(
             name: "BinaryDependencyManagerTests",
-            dependencies: ["binary_dependencies_manager"]
+            dependencies: [
+                .target(name: "BinaryDependencyManager")
+            ]
         ),
     ]
 )

@@ -1,6 +1,9 @@
-@testable import binary_dependencies_manager
+import BinaryDependencyManager
+
 import XCTest
 
 final class BinaryDependencyManagerTests: XCTestCase {
-    func testExample() throws {}
+    func testExample() throws {
+        _ = DependenciesResolverRunner(dependenciesJSONPath: "", cacheDirectoryPath: "", outputDirectoryPath: "")
+    }
 }

@@ -1,14 +1,24 @@
 import Crypto
 import Foundation
 
-struct DependenciesResolverRunner {
+public struct DependenciesResolverRunner {
     let dependenciesJSONPath: String
 
     let cacheDirectoryPath: String
 
     let outputDirectoryPath: String
+    
+    public init(
+        dependenciesJSONPath: String,
+        cacheDirectoryPath: String,
+        outputDirectoryPath: String
+    ) {
+        self.dependenciesJSONPath = dependenciesJSONPath
+        self.cacheDirectoryPath = cacheDirectoryPath
+        self.outputDirectoryPath = outputDirectoryPath
+    }
 
-    func run() throws {
+    public func run() throws {
         let dependencies = try runThrowable("Reading dependencies") { try readDependencies() }
 
         // resolve dependencies one by one
