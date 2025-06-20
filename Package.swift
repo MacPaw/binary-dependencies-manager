@@ -13,11 +13,12 @@ let package = Package(
         .executable(
             name: "binary-dependencies-manager",
             targets: ["CommandLine"]
-        )
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMajor(from: "1.5.1")),
         .package(url: "https://github.com/apple/swift-crypto.git", .upToNextMajor(from: "3.12.3")),
+        .package(url: "https://github.com/jpsim/Yams.git", .upToNextMajor(from: "6.0.1")),
     ],
 
     targets: [
@@ -35,7 +36,8 @@ let package = Package(
             name: "BinaryDependencyManager",
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
-                "Utils"
+                "Utils",
+                .product(name: "Yams", package: "Yams"),
             ]
         ),
         
@@ -44,7 +46,7 @@ let package = Package(
         .testTarget(
             name: "BinaryDependencyManagerTests",
             dependencies: [
-                .target(name: "BinaryDependencyManager")
+                .target(name: "BinaryDependencyManager"),
             ]
         ),
     ]
