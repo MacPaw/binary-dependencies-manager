@@ -1,4 +1,4 @@
-@testable import binary_dependencies_manager
+@testable import BinaryDependencyManager
 import XCTest
 import Testing
 import Yams

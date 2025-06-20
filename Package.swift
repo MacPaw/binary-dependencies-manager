@@ -12,7 +12,7 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .executable(
             name: "binary-dependencies-manager",
-            targets: ["BinaryDependenciesManager"]
+            targets: ["CommandLine"]
         ),
     ],
     dependencies: [
@@ -22,20 +22,32 @@ let package = Package(
     ],
 
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        
         .executableTarget(
-            name: "BinaryDependenciesManager",
+            name: "CommandLine",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                "BinaryDependencyManager",
+                "Utils",
+            ]
+        ),
+        
+        .target(
+            name: "BinaryDependencyManager",
+            dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
+                "Utils",
                 .product(name: "Yams", package: "Yams"),
             ]
         ),
+        
+        .target(name: "Utils"),
 
         .testTarget(
-            name: "DependenciesResolverTests",
-            dependencies: ["BinaryDependenciesManager"]
+            name: "BinaryDependencyManagerTests",
+            dependencies: [
+                .target(name: "BinaryDependencyManager"),
+            ]
         ),
     ]
 )
