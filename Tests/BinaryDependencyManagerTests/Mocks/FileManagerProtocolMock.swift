@@ -1,4 +1,4 @@
-@testable import binary_dependencies_manager
+@testable import BinaryDependencyManager
 import Foundation
 
 class FileManagerProtocolMock: FileManagerProtocol {
