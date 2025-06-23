@@ -1,13 +1,13 @@
 /// Dependency representation
-struct Dependency: Equatable {
+public struct Dependency: Equatable {
     /// Repository in format "owner/repo" i.e. "MacPaw/CMMX-Panther-Engine"
-    let repo: String
+    public let repo: String
 
     /// Tag in format "0.0.47", Basically a release
-    let tag: String
+    public let tag: String
 
     /// List of assets to download.
-    let assets: [Asset]
+    public let assets: [Asset]
 }
 
 // MARK: Decodable
@@ -19,7 +19,7 @@ extension Dependency: Decodable {
         case assets
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.repo = try container.decode(String.self, forKey: .repo)
         self.tag = try container.decode(String.self, forKey: .tag)
@@ -37,7 +37,7 @@ extension Dependency: Decodable {
 // MARK: Encodable
 
 extension Dependency: Encodable {
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(repo, forKey: .repo)
         try container.encode(tag, forKey: .tag)
@@ -48,16 +48,16 @@ extension Dependency: Encodable {
 // MARK: - Dependency.Asset
 
 extension Dependency {
-    struct Asset: Equatable {
+    public struct Asset: Equatable {
         /// SHA-256 checksum of the zip archive.
-        let checksum: String
+        public let checksum: String
         /// Regex pattern to a specific artifact, if multiple artifacts are added to the the release assets.
-        let pattern: String?
+        public let pattern: String?
         /// If provided, the contents of `contents` directory in the Source Code archive will be copied to output directory.
         /// - Warning: if provided it takes precedence over the `pattern`.
-        let contents: String?
+        public let contents: String?
         /// Custom output directory for the asset.
-        let outputDirectory: String?
+        public let outputDirectory: String?
 
         init (
             checksum: String,
@@ -83,7 +83,7 @@ extension Dependency.Asset: Decodable {
         case outputDirectory = "output"
     }
 
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.checksum = try container.decode(String.self, forKey: .checksum)
         self.pattern = try container.decodeIfPresent(String.self, forKey: .pattern)
@@ -95,7 +95,7 @@ extension Dependency.Asset: Decodable {
 // MARK: Encodable
 
 extension Dependency.Asset: Encodable {
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(checksum, forKey: .checksum)
         try container.encodeIfPresent(pattern, forKey: .pattern)

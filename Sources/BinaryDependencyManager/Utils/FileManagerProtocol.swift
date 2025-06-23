@@ -1,6 +1,6 @@
 import Foundation
 
-protocol FileManagerProtocol {
+public protocol FileManagerProtocol {
     /// Returns a Boolean value that indicates whether a file or directory exists at a specified path.
     ///
     /// - Parameter path: The path of the file or directory. If path begins with a tilde (~), it must first be expanded with expandingTildeInPath; otherwise, this method returns false.

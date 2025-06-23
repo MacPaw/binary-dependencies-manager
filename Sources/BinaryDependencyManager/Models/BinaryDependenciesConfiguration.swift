@@ -1,15 +1,16 @@
 import Foundation
+import Utils
 
 /// Binary dependencies configuration.
-struct BinaryDependenciesConfiguration: Equatable {
+public struct BinaryDependenciesConfiguration: Equatable {
     /// Minimum version of the `binary-dependencies-manager` CLI.
-    var minimumVersion: Version?
+    public var minimumVersion: Version?
     /// Path to the output directory, where downloaded dependencies will be placed.
-    var outputDirectory: String?
+    public var outputDirectory: String?
     /// Path to the cache directory.
-    var cacheDirectory: String?
+    public var cacheDirectory: String?
     /// Dependencies list.
-    var dependencies: [Dependency]
+    public var dependencies: [Dependency]
 }
 
 extension BinaryDependenciesConfiguration: Codable {
@@ -21,7 +22,7 @@ extension BinaryDependenciesConfiguration: Codable {
         case dependencies
     }
 
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         do {
             // Decode full schema
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -45,7 +46,7 @@ extension BinaryDependenciesConfiguration: Codable {
         }
     }
 
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(self.minimumVersion?.description, forKey: .minimumVersion)
         try container.encodeIfPresent(self.outputDirectory, forKey: .outputDirectory)

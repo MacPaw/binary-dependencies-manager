@@ -1,10 +1,10 @@
 import Foundation
 import Yams
 import ArgumentParser
-
+import Utils
 
 /// A utility for resolving and loading binary dependencies configuration files.
-struct BinaryDependenciesConfigurationReader {
+public struct BinaryDependenciesConfigurationReader {
     private static let defaultConfigurationFilenames: [String] = [
         ".binary-dependencies.yaml",
         ".binary-dependencies.yml",
@@ -24,7 +24,7 @@ struct BinaryDependenciesConfigurationReader {
 
     private let fileManager: FileManagerProtocol
 
-    init(fileManager: FileManagerProtocol = FileManager.default) {
+    public init(fileManager: FileManagerProtocol = FileManager.default) {
         self.fileManager = fileManager
     }
 
@@ -50,7 +50,7 @@ struct BinaryDependenciesConfigurationReader {
     /// - Parameter configurationFilePath: Optional configuration file path to use, or nil to search defaults.
     /// - Throws: ValidationError if the file does not exist.
     /// - Returns: The resolved configuration file URL.
-    func resolveConfigurationFileURL(_ configurationFilePath: String?) throws -> URL {
+    public func resolveConfigurationFileURL(_ configurationFilePath: String?) throws -> URL {
         let configurationFileURL = resolveFilePath(configurationFilePath, variations: Self.defaultConfigurationFilenames)
         guard fileManager.fileExists(atPath: configurationFileURL.path) else {
             throw ValidationError("No configuration file found")
@@ -61,22 +61,27 @@ struct BinaryDependenciesConfigurationReader {
     /// Resolves the output directory URL using the provided path, or falls back to the default output directories.
     /// - Parameter outputDirectory: Optional output directory path.
     /// - Returns: The resolved output directory URL.
-    func resolveOutputDirectoryURL(_ outputDirectory: String?) -> URL {
+    public func resolveOutputDirectoryURL(_ outputDirectory: String?) -> URL {
         resolveFilePath(outputDirectory, variations: Self.defaultOutputDirectoryPaths)
     }
 
     /// Resolves the cache directory URL using the provided path, or falls back to the default cache directories.
     /// - Parameter cacheDirectory: Optional cache directory path.
     /// - Returns: The resolved cache directory URL.
-    func resolveCacheDirectoryURL(_ cacheDirectory: String?) -> URL {
+    public func resolveCacheDirectoryURL(_ cacheDirectory: String?) -> URL {
         resolveFilePath(cacheDirectory, variations: Self.defaultCacheDirectoryPaths)
     }
 
     /// Parses and returns a `BinaryDependenciesConfiguration` from the specified configuration file path.
-    /// - Parameter configurationPath: Optional path to the configuration file.
+    /// - Parameters:
+    ///   - configurationPath: Optional path to the configuration file.
+    ///   - currentToolVersion: Current binary dependency manager version.
     /// - Throws: An error if the file cannot be found, decoded, or the version check fails.
     /// - Returns: The parsed `BinaryDependenciesConfiguration` object.
-    func readConfiguration(at configurationPath: String?) throws -> BinaryDependenciesConfiguration {
+    public func readConfiguration(
+        at configurationPath: String?,
+        currentToolVersion: Version
+    ) throws -> BinaryDependenciesConfiguration {
 
         let configurationURL: URL = try resolveConfigurationFileURL(configurationPath)
 
@@ -97,10 +102,10 @@ struct BinaryDependenciesConfigurationReader {
         let configuration = try decoder.decode(BinaryDependenciesConfiguration.self, from: dependenciesData)
 
         // Check minimum required version
-        let minimumRequiredVersion = configuration.minimumVersion ?? BinaryDependenciesManager.version
-        guard BinaryDependenciesManager.version >= minimumRequiredVersion else {
+        let minimumRequiredVersion = configuration.minimumVersion ?? currentToolVersion
+        guard currentToolVersion >= minimumRequiredVersion else {
             throw ValidationError(
-                "\(configurationPath ?? configurationURL.lastPathComponent) requires version '\(minimumRequiredVersion)', but current version '\(BinaryDependenciesManager.version)' is lower."
+                "\(configurationPath ?? configurationURL.lastPathComponent) requires version '\(minimumRequiredVersion)', but current version '\(currentToolVersion)' is lower."
             )
         }
 
