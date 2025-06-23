@@ -54,31 +54,34 @@ struct ResolveCommand: ParsableCommand {
         // Paths from CLI arguments take precedence over those from the configuration file.
         outputDirectoryPath = configurationReader
             .resolveOutputDirectoryURL(outputDirectoryPath ?? configuration.outputDirectory)
-            .path
+            .filePath
         cacheDirectoryPath = configurationReader
             .resolveCacheDirectoryURL(cacheDirectoryPath ?? configuration.cacheDirectory)
-            .path
+            .filePath
 
     }
 
     func run() throws {
         guard let configuration else {
             // Should never happen, because we validate the configuration in `validate()` method.
-            preconditionFailure("Configuration is not initialized")
+            throw GenericError("Configuration is not initialized")
         }
         guard let outputDirectoryPath else {
             // Should never happen, because we validate the configuration in `validate()` method.
-            preconditionFailure("Output directory path is not initialized")
+            throw GenericError("Output directory path is not initialized")
         }
         guard let cacheDirectoryPath else {
             // Should never happen, because we validate the configuration in `validate()` method.
-            preconditionFailure("Cache directory path is not initialized")
+            throw GenericError("Cache directory path is not initialized")
         }
 
         let dependenciesResolver = DependenciesResolverRunner(
             dependencies: configuration.dependencies,
-            outputDirectoryPath: outputDirectoryPath,
-            cacheDirectoryPath: cacheDirectoryPath,
+            outputDirectoryURL: outputDirectoryPath.asFileURL,
+            cacheDirectoryURL: cacheDirectoryPath.asFileURL,
+            dependenciesDownloader: try CLI.GitHub(),
+            unarchiver: try CLI.Unzip(),
+            checksumCalculator: SHA256ChecksumCalculator()
         )
 
         // Run the dependencies resolver.

@@ -35,13 +35,17 @@ let package = Package(
         .target(
             name: "BinaryDependencyManager",
             dependencies: [
-                .product(name: "Crypto", package: "swift-crypto"),
                 "Utils",
                 .product(name: "Yams", package: "Yams"),
             ]
         ),
-        
-        .target(name: "Utils"),
+
+        .target(
+            name: "Utils",
+            dependencies: [
+                .product(name: "Crypto", package: "swift-crypto"),
+            ]
+        ),
 
         .testTarget(
             name: "BinaryDependencyManagerTests",

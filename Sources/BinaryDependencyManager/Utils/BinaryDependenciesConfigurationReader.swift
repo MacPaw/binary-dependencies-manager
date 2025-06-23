@@ -85,8 +85,8 @@ public struct BinaryDependenciesConfigurationReader {
         let configurationURL: URL = try resolveConfigurationFileURL(configurationPath)
 
         // Get the contents of the file
-            throw GenericError("Can't get contents of configuration file at \(configurationURL.path)")
         guard let dependenciesData: Data = fileManager.contents(at: configurationURL) else {
+            throw GenericError("Can't get contents of configuration file at \(configurationURL.relativeFilePath)")
         }
 
         // Decoder selection: Check if this is yaml, and fallback to JSONDecoder.
@@ -128,3 +128,10 @@ protocol TopLevelDataDecoder {
 extension JSONDecoder: TopLevelDataDecoder {}
 extension YAMLDecoder: TopLevelDataDecoder {}
 
+#if !canImport(Combine)
+extension YAMLDecoder {
+    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
+        try self.decode(type, from: data, userInfo: [:])
+    }
+}
+#endif

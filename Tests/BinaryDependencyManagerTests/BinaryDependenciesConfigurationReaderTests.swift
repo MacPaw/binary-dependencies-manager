@@ -44,6 +44,7 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
 
     func test_readConfiguration_parsesYAML() throws {
         // GIVEN
+        let version = Version("0.0.1")
         let yamlString = """
         minimumVersion: 0.0.1
         outputDirectory: output/directory
@@ -63,11 +64,11 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
         let sut = BinaryDependenciesConfigurationReader(fileManager: mockFileManager)
 
         // WHEN
-        let config = try sut.readConfiguration(at: .none)
+        let config = try sut.readConfiguration(at: .none, currentToolVersion: version)
 
         // THEN
         let expected = BinaryDependenciesConfiguration(
-            minimumVersion: Version(string: "0.0.1"),
+            minimumVersion: version,
             outputDirectory: "output/directory",
             cacheDirectory: "cache/directory",
             dependencies: [

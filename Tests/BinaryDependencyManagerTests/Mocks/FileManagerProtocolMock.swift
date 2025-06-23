@@ -2,12 +2,20 @@
 import Foundation
 
 class FileManagerProtocolMock: FileManagerProtocol {
+    var copiedFiles: [URL: URL] = [:]
+    func copyItem(at srcURL: URL, to dstURL: URL) throws {
+        copiedFiles[srcURL] = dstURL
+        existingFiles.insert(dstURL.filePath)
+        contentsMap[dstURL] = contentsMap[srcURL]
+    }
+
     func createDirectory(at url: URL, withIntermediateDirectories createIntermediates: Bool, attributes: [FileAttributeKey : Any]?) throws {
         createdDirectories.append(url)
     }
 
+    var directoryContents: [String: [String]] = [:]
     func contentsOfDirectory(atPath path: String) throws -> [String] {
-        []
+        directoryContents[path] ?? []
     }
 
     var existingFiles: Set<String> = []
@@ -31,7 +39,11 @@ class FileManagerProtocolMock: FileManagerProtocol {
 
     var temporaryDirectory: URL { tempDir }
     func contents(at url: URL) -> Data? { contentsMap[url] }
-    func removeItem(at url: URL) throws { removedItems.append(url) }
+    func removeItem(at url: URL) throws {
+        removedItems.append(url)
+        existingFiles.remove(url.filePath)
+        contentsMap[url] = .none
+    }
 
     var createdFiles: [String] = []
     func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey : Any]?) -> Bool {
