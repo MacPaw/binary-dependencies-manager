@@ -1,6 +1,5 @@
 import Foundation
 import Yams
-import ArgumentParser
 import Utils
 
 /// A utility for resolving and loading binary dependencies configuration files.
@@ -53,7 +52,7 @@ public struct BinaryDependenciesConfigurationReader {
     public func resolveConfigurationFileURL(_ configurationFilePath: String?) throws -> URL {
         let configurationFileURL = resolveFilePath(configurationFilePath, variations: Self.defaultConfigurationFilenames)
         guard fileManager.fileExists(atPath: configurationFileURL.path) else {
-            throw ValidationError("No configuration file found")
+            throw GenericError("No configuration file found")
         }
         return configurationFileURL
     }
@@ -87,7 +86,7 @@ public struct BinaryDependenciesConfigurationReader {
 
         // Get the contents of the file
         guard let dependenciesData: Data = fileManager.contents(atPath: configurationURL.path) else {
-            throw ValidationError("Can't get contents of configuration file at \(configurationURL.path)")
+            throw GenericError("Can't get contents of configuration file at \(configurationURL.path)")
         }
 
         // Decoder selection: Check if this is yaml, and fallback to JSONDecoder.
@@ -104,9 +103,7 @@ public struct BinaryDependenciesConfigurationReader {
         // Check minimum required version
         let minimumRequiredVersion = configuration.minimumVersion ?? currentToolVersion
         guard currentToolVersion >= minimumRequiredVersion else {
-            throw ValidationError(
-                "\(configurationPath ?? configurationURL.lastPathComponent) requires version '\(minimumRequiredVersion)', but current version '\(currentToolVersion)' is lower."
-            )
+            throw GenericError("\(configurationPath ?? configurationURL.lastPathComponent) requires version '\(minimumRequiredVersion)', but current version '\(currentToolVersion)' is lower.")
         }
 
         let dependencies = configuration.dependencies
