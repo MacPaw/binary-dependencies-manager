@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Utils
 
 // Making sure that output will be shown immediately, as it comes in the script
 #if os(macOS)

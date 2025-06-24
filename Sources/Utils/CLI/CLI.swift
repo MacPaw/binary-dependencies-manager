@@ -1,6 +1,6 @@
 import Foundation
 
-enum CLI {
+public enum CLI {
     /// Returns path to the provided `cliToolName`.
     ///
     /// - Parameters:

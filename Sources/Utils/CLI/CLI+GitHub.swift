@@ -2,7 +2,7 @@ import Foundation
 
 extension CLI {
     /// Helper for interacting with the GitHub CLI (`gh`)
-    struct GitHub {
+    public struct GitHub {
         let cliURL: URL
     }
 }
@@ -11,7 +11,7 @@ extension CLI.GitHub {
     /// Initializes a `CLI.GitHub` by resolving the path to the `gh` command-line tool.
     ///
     /// - Throws: An error if the `gh` CLI cannot be found in PATH.
-    init() throws {
+    public init() throws {
         self.init(cliURL: try CLI.which(cliToolName: "gh"))
     }
 }
@@ -40,7 +40,7 @@ extension CLI.GitHub {
     ///   - tag: The release tag to download.
     ///   - outputFilePath: The output file path for the downloaded archive.
     /// - Throws: If the download fails.
-    func downloadSourceCode(
+    public func downloadSourceCode(
         repo: String,
         tag: String,
         outputFilePath: String
@@ -70,7 +70,7 @@ extension CLI.GitHub {
     ///   - pattern: Optional asset name pattern to select the correct file.
     ///   - outputFilePath: Where to save the downloaded asset.
     /// - Throws: If the download fails.
-    func downloadReleaseAsset(
+    public func downloadReleaseAsset(
         repo: String,
         tag: String,
         pattern: String?,
