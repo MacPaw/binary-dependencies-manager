@@ -42,9 +42,6 @@ struct ResolveCommand: ParsableCommand {
     /// Dependencies to resolve.
     var configuration: BinaryDependenciesConfiguration?
 
-    /// Binary dependencies resolver.
-    var dependenciesResolver: DependenciesResolverRunner?
-
     /// Validates a given configuration file.
     mutating func validate() throws {
         let configurationReader: BinaryDependenciesConfigurationReader = .init()
@@ -52,26 +49,38 @@ struct ResolveCommand: ParsableCommand {
         let configuration = try configurationReader
             .readConfiguration(at: configurationFilePath, currentToolVersion: BinaryDependenciesManager.version)
 
+        self.configuration = configuration
+
         // Paths from CLI arguments take precedence over those from the configuration file.
-        let outputDirectoryPath = configurationReader
+        outputDirectoryPath = configurationReader
             .resolveOutputDirectoryURL(outputDirectoryPath ?? configuration.outputDirectory)
             .path
-        let cacheDirectoryPath = configurationReader
+        cacheDirectoryPath = configurationReader
             .resolveCacheDirectoryURL(cacheDirectoryPath ?? configuration.cacheDirectory)
             .path
 
-        dependenciesResolver = DependenciesResolverRunner(
+    }
+
+    func run() throws {
+        guard let configuration else {
+            // Should never happen, because we validate the configuration in `validate()` method.
+            preconditionFailure("Configuration is not initialized")
+        }
+        guard let outputDirectoryPath else {
+            // Should never happen, because we validate the configuration in `validate()` method.
+            preconditionFailure("Output directory path is not initialized")
+        }
+        guard let cacheDirectoryPath else {
+            // Should never happen, because we validate the configuration in `validate()` method.
+            preconditionFailure("Cache directory path is not initialized")
+        }
+
+        let dependenciesResolver = DependenciesResolverRunner(
             dependencies: configuration.dependencies,
             outputDirectoryPath: outputDirectoryPath,
             cacheDirectoryPath: cacheDirectoryPath,
         )
-    }
 
-    func run() throws {
-        guard let dependenciesResolver else {
-            // Should never happen, because we validate the configuration in `validate()` method.
-            preconditionFailure("Dependencies resolver is not initialized")
-        }
         // Run the dependencies resolver.
         try dependenciesResolver.run()
     }
