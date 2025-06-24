@@ -2,7 +2,7 @@ import Crypto
 import Foundation
 import Utils
 
-public struct DependenciesResolverRunner {
+public struct DependenciesResolverRunner: Codable {
     let dependenciesJSONPath: String
 
     let cacheDirectoryPath: String

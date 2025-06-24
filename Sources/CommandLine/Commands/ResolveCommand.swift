@@ -42,30 +42,37 @@ struct ResolveCommand: ParsableCommand {
     /// Dependencies to resolve.
     var configuration: BinaryDependenciesConfiguration?
 
+    /// Binary dependencies resolver.
+    var dependenciesResolver: DependenciesResolverRunner?
+
     /// Validates a given configuration file.
     mutating func validate() throws {
         let configurationReader: BinaryDependenciesConfigurationReader = .init()
-        configuration = try configurationReader
+
+        let configuration = try configurationReader
             .readConfiguration(at: configurationFilePath, currentToolVersion: BinaryDependenciesManager.version)
-        outputDirectoryPath = configurationReader
-            .resolveOutputDirectoryURL(outputDirectoryPath ?? configuration?.outputDirectory)
+
+        // Paths from CLI arguments take precedence over those from the configuration file.
+        let outputDirectoryPath = configurationReader
+            .resolveOutputDirectoryURL(outputDirectoryPath ?? configuration.outputDirectory)
             .path
-        cacheDirectoryPath = configurationReader
-            .resolveCacheDirectoryURL(cacheDirectoryPath ?? configuration?.cacheDirectory)
+        let cacheDirectoryPath = configurationReader
+            .resolveCacheDirectoryURL(cacheDirectoryPath ?? configuration.cacheDirectory)
             .path
+
+        dependenciesResolver = DependenciesResolverRunner(
+            dependencies: configuration.dependencies,
+            outputDirectoryPath: outputDirectoryPath,
+            cacheDirectoryPath: cacheDirectoryPath,
+        )
     }
 
     func run() throws {
-        guard let configuration = configuration else {
+        guard let dependenciesResolver else {
             // Should never happen, because we validate the configuration in `validate()` method.
-            preconditionFailure("Configuration is not set. Please check your configuration file path.")
+            preconditionFailure("Dependencies resolver is not initialized")
         }
-
-        let resolver = DependenciesResolverRunner(
-            dependencies: configuration.dependencies,
-            cacheDirectoryPath: cacheDirectoryPath!,
-            outputDirectoryPath: outputDirectoryPath!
-        )
-        try resolver.run()
+        // Run the dependencies resolver.
+        try dependenciesResolver.run()
     }
 }
