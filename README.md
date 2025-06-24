@@ -76,7 +76,7 @@ Run the tool by specifying the required paths:
   {
     "repo": "AnotherOrg/AnotherBinary",
     "tag": "0.9.0",
-    "checksum": "d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2",
+    "checksum": "7ab14dda40c47f9c4d1829b4c214898e4c61a2d3055c773169b7291d0f48cd0c",
     "pattern": "AnotherBinary.zip"
   }
 ]
@@ -97,7 +97,7 @@ dependencies:
         output: MyLibrary
   - repo: AnotherOrg/AnotherBinary
     tag: 0.9.0
-    checksum: d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2
+    checksum: 7ab14dda40c47f9c4d1829b4c214898e4c61a2d3055c773169b7291d0f48cd0c
     pattern: AnotherBinary.zip
 ```
 ## Top level parameters
