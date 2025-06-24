@@ -56,8 +56,13 @@ struct ResolveCommand: ParsableCommand {
     }
 
     func run() throws {
+        guard let configuration = configuration else {
+            // Should never happen, because we validate the configuration in `validate()` method.
+            preconditionFailure("Configuration is not set. Please check your configuration file path.")
+        }
+
         let resolver = DependenciesResolverRunner(
-            dependencies: configuration!.dependencies,
+            dependencies: configuration.dependencies,
             cacheDirectoryPath: cacheDirectoryPath!,
             outputDirectoryPath: outputDirectoryPath!
         )
