@@ -51,14 +51,14 @@ Run the tool by specifying the required paths:
 
 ```sh
 ./Binary/binary-dependencies-manager \
-  --dependencies path/to/dependencies.json \
+  --config path/to/.binary-dependencies.yaml \
   --cache path/to/cache \
   --output path/to/output
 ```
 
-- `--dependencies`: Path to your `dependencies.json` file (see format below)
+- `--config`, `-c`: Path to your `.binary-dependencies.yaml` file (see format below)
+- `--output`, `-o`: Directory where resolved dependencies will be extracted
 - `--cache`: Directory to use for caching downloads
-- `--output`: Directory where resolved dependencies will be extracted
 
 ## Example `dependencies.json`
 ```json
@@ -66,27 +66,59 @@ Run the tool by specifying the required paths:
   {
     "repo": "MyOrg/MyLibrary",
     "tag": "1.2.3",
-    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "contents": "XCFrameworks/MyLibrary.xcframework",
-    "pattern": "MyLibrary.xcframework.zip",
-    "output": "MyLibrary"
+    "assets": {
+      "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contents": "XCFrameworks/MyLibrary.xcframework",
+      "pattern": "MyLibrary.xcframework.zip",
+      "output": "MyLibrary"
+    }
   },
   {
     "repo": "AnotherOrg/AnotherBinary",
     "tag": "0.9.0",
-    "checksum": "d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2",
+    "checksum": "7ab14dda40c47f9c4d1829b4c214898e4c61a2d3055c773169b7291d0f48cd0c",
     "pattern": "AnotherBinary.zip"
   }
 ]
 ```
 
+```yaml
+---
+minimumVersion: 0.0.5
+outputDirectory: Dependencies
+cacheDirectory: .cache/binary-dependencies/
+dependencies:
+  - repo: MyOrg/MyLibrary
+    tag: 1.2.3
+    assets:
+      - contents: XCFrameworks/MyLibrary.xcframework
+        checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        pattern: MyLibrary.xcframework.zip
+        output: MyLibrary
+  - repo: AnotherOrg/AnotherBinary
+    tag: 0.9.0
+    checksum: 7ab14dda40c47f9c4d1829b4c214898e4c61a2d3055c773169b7291d0f48cd0c
+    pattern: AnotherBinary.zip
+```
+## Top level parameters
+- `minimumVersion` (optional): Minimum required binary-dependencies-manager version. Optional. Defaults to the current version.
+- `outputDirectory` (optional): Path to the output directory. Optional. Defaults to `Dependencies/Binary`.
+- `cacheDirectory` (optional): Path to the cache directory. Optional. Defaults to the `.cache/binary-dependencies`.
+
+
 ## Dependency Parameters
 - `repo` (**required**): GitHub repository in the format `owner/repo` (e.g., `apple/swift-argument-parser`)
 - `tag` (**required**): Release tag to download (e.g., `1.0.0`)
+- `assets` (optional): A list of multiple binary assets to download from a given repo release.
+
+> ℹ️ If no assets are provided you can specify asset parameters as a dependency parameters to download a single release artifact.
+
+## Asset Parameters
 - `checksum` (**required**): SHA256 checksum of the zip archive for integrity verification
 - `contents` (optional): If provided, only the contents of this directory inside the archive will be extracted to the output directory
 - `pattern` (optional): Pattern to select a specific artifact from the release (useful if multiple assets are present)
-- `output` (optional): Subdirectory name to use for this dependency in the output directory (useful for organizing multiple artifacts)
+- `output` (optional): Subdirectory name to use for this dependency asset in the output directory (useful for organizing multiple artifacts)
+
 
 ## Example Scenarios
 - **Download a single artifact:**
