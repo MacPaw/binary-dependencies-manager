@@ -9,10 +9,13 @@ setbuf(__stdoutp, nil)
 setbuf(stdout, nil)
 #endif
 
-struct BinaryDependenciesManager: ParsableCommand {
+struct BinaryDependenciesManager: ArgumentParser.ParsableCommand {
+    /// The version of the binary dependencies manager.
+    static var version: Version = "0.0.4"
 
     static var configuration = CommandConfiguration(
-        abstract: "Dependencies resolver",
+        abstract: "Binary dependencies resolver",
+        version: version.description,
         subcommands: [
             ResolveCommand.self,
             CleanCommand.self,
