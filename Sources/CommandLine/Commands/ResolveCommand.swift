@@ -11,16 +11,33 @@ struct ResolveCommand: ParsableCommand {
     )
 
     /// Path to the configuration file.
-    @Option(name: .shortAndLong, help: "Path to the configuration file")
+    ///
+    /// Example:
+    /// ```
+    /// $ binary-dependencies-manager resolve --config ./.binary-dependencies.yaml
+    /// $ binary-dependencies-manager resolve -c ./.binary-dependencies.yaml
+    /// ```
+    @Option(name: [.customLong("config", withSingleDash: true), .short], help: "Path to the configuration file")
     var configurationFilePath: String?
 
-    /// Path to the cache directory.
-    @Option(name: .long, help: "Path to the cache directory")
-    var cacheDirectoryPath: String?
-
     /// Path to the output directory.
-    @Option(name: .long, help: "Path to the output directory, where downloaded dependencies will be placed")
+    ///
+    /// Example:
+    /// ```
+    /// $ binary-dependencies-manager resolve --output ./output
+    /// $ binary-dependencies-manager resolve -o ./output
+    /// ```
+    @Option(name: [.customLong("output"), .short], help: "Path to the output directory, where downloaded dependencies will be placed")
     var outputDirectoryPath: String?
+
+    /// Path to the cache directory.
+    ///
+    /// Example:
+    /// ```
+    /// $ binary-dependencies-manager resolve --cache ./cache
+    /// ```
+    @Option(name: [.customLong("cache")], help: "Path to the cache directory")
+    var cacheDirectoryPath: String?
 
     /// Dependencies to resolve.
     var configuration: BinaryDependenciesConfiguration?
