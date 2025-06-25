@@ -51,7 +51,7 @@ public struct BinaryDependenciesConfigurationReader {
     /// - Returns: The resolved configuration file URL.
     public func resolveConfigurationFileURL(_ configurationFilePath: String?) throws -> URL {
         let configurationFileURL = resolveFilePath(configurationFilePath, variations: Self.defaultConfigurationFilenames)
-        guard fileManager.fileExists(atPath: configurationFileURL.path) else {
+        guard fileManager.fileExists(at: configurationFileURL) else {
             throw GenericError("No configuration file found")
         }
         return configurationFileURL
@@ -85,8 +85,8 @@ public struct BinaryDependenciesConfigurationReader {
         let configurationURL: URL = try resolveConfigurationFileURL(configurationPath)
 
         // Get the contents of the file
-        guard let dependenciesData: Data = fileManager.contents(atPath: configurationURL.path) else {
             throw GenericError("Can't get contents of configuration file at \(configurationURL.path)")
+        guard let dependenciesData: Data = fileManager.contents(at: configurationURL) else {
         }
 
         // Decoder selection: Check if this is yaml, and fallback to JSONDecoder.
