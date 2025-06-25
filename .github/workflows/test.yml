@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - chore/refactor
 
 jobs:
   test:
@@ -19,10 +20,9 @@ jobs:
           - os: ubuntu-latest
             build-system: swift
             swift-version: '6.1'
-          # Will uncomment when target names are fixed.
-          # - os: macos-15
-          #   build-system: xcodebuild
-          #   xcode-version: '16.4'
+          - os: macos-15
+            build-system: xcodebuild
+            xcode-version: '16.4'
 
     runs-on: ${{ matrix.os }}
 
