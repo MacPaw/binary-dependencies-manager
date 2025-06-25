@@ -11,11 +11,17 @@ extension URL {
     ///   - isDirectory: A `Bool` flag to whether this URL will point to a directory.
     public func appending(pathComponents: String..., isDirectory: Bool) -> URL {
         var result = self
+
+        // Remove empty path components to avoid double slashes.
+        let pathComponents = pathComponents.filter { !$0.isEmpty }
+
         if #available(macOS 13.0, *) {
-            for path in pathComponents[0..<pathComponents.count - 1] {
+            for path in pathComponents[0..<max(pathComponents.count - 1, 0)] {
                 result.append(path: path, directoryHint: .isDirectory)
             }
-            result.append(path: pathComponents.last!, directoryHint: isDirectory ? .isDirectory : .inferFromPath)
+            if !pathComponents.isEmpty {
+                result.append(path: pathComponents.last!, directoryHint: isDirectory ? .isDirectory : .inferFromPath)
+            }
         } else {
             result.appendPathComponent(pathComponents.joined(separator: "/"), isDirectory: isDirectory)
         }
