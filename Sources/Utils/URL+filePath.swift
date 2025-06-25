@@ -27,7 +27,7 @@ extension URL {
     /// - Note: Used to avoid deprecation warning for newer macOS.
     public var filePath: String {
         if #available(macOS 13.0, *) {
-            path()
+            path(percentEncoded: false)
         } else {
             path
         }
