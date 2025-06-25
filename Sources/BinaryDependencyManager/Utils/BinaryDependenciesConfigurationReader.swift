@@ -85,8 +85,8 @@ public struct BinaryDependenciesConfigurationReader {
         let configurationURL: URL = try resolveConfigurationFileURL(configurationPath)
 
         // Get the contents of the file
-            throw GenericError("Can't get contents of configuration file at \(configurationURL.path)")
         guard let dependenciesData: Data = fileManager.contents(at: configurationURL) else {
+            throw GenericError("Can't get contents of configuration file at \(configurationURL.relativeFilePath)")
         }
 
         // Decoder selection: Check if this is yaml, and fallback to JSONDecoder.

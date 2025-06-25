@@ -22,7 +22,7 @@ public enum CLI {
     ///   - currentDirectoryURL: A working directory URL where executable will be launched.
     @discardableResult
     static func run(executableURL: URL, arguments: [String], currentDirectoryURL: URL? = .none) throws -> String {
-        Logger.log("[Run] \(executableURL.path) \(arguments.joined(separator: " "))")
+        Logger.log("[Run] \(executableURL.filePath) \(arguments.joined(separator: " "))")
 
         let process = Process()
         process.executableURL = executableURL

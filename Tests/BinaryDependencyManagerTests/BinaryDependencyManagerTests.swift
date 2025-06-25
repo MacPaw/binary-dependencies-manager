@@ -4,6 +4,10 @@ import XCTest
 
 final class BinaryDependencyManagerTests: XCTestCase {
     func testExample() throws {
-        _ = DependenciesResolverRunner(dependenciesJSONPath: "", cacheDirectoryPath: "", outputDirectoryPath: "")
+        _ = try DependenciesResolverRunner(
+            dependencies: [],
+            outputDirectoryURL: "".asFileURL,
+            cacheDirectoryURL: "".asFileURL
+        )
     }
 }
