@@ -54,10 +54,10 @@ struct ResolveCommand: ParsableCommand {
         // Paths from CLI arguments take precedence over those from the configuration file.
         outputDirectoryPath = configurationReader
             .resolveOutputDirectoryURL(outputDirectoryPath ?? configuration.outputDirectory)
-            .path
+            .filePath
         cacheDirectoryPath = configurationReader
             .resolveCacheDirectoryURL(cacheDirectoryPath ?? configuration.cacheDirectory)
-            .path
+            .filePath
 
     }
 
@@ -75,10 +75,10 @@ struct ResolveCommand: ParsableCommand {
             preconditionFailure("Cache directory path is not initialized")
         }
 
-        let dependenciesResolver = DependenciesResolverRunner(
+        let dependenciesResolver = try DependenciesResolverRunner(
             dependencies: configuration.dependencies,
-            outputDirectoryPath: outputDirectoryPath,
-            cacheDirectoryPath: cacheDirectoryPath,
+            outputDirectoryURL: outputDirectoryPath.asFileURL,
+            cacheDirectoryURL: cacheDirectoryPath.asFileURL,
         )
 
         // Run the dependencies resolver.
