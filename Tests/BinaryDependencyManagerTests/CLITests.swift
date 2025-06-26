@@ -1,5 +1,5 @@
 import XCTest
-@testable import binary_dependencies_manager
+@testable import Utils
 
 final class CLITests: XCTestCase {
     func testWhichFindsExistingTool() throws {

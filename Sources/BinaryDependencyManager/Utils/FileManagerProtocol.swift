@@ -13,6 +13,42 @@ public protocol FileManagerProtocol {
     ///   - path: The path of the file whose contents you want.
     /// - Returns: An `Data` object with the contents of the file. If path specifies a directory, or if some other error occurs, this method returns nil.
     func contents(atPath path: String) -> Data?
+
+    /// The temporary directory for the current user.
+    var temporaryDirectory: URL { get }
+
+    /// Removes the file or directory at the specified path.
+    /// - Parameters:
+    ///   - url: A file URL specifying the file or directory to remove. If the URL specifies a directory, the contents of that directory are recursively removed.
+    func removeItem(at url: URL) throws
+
+    func createDirectory(at url: URL, withIntermediateDirectories createIntermediates: Bool, attributes: [FileAttributeKey : Any]?) throws
+
+    func contentsOfDirectory(atPath path: String) throws -> [String]
+
+    func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey : Any]?) -> Bool
+}
+
+extension FileManagerProtocol {
+    public func createDirectory(at url: URL, withIntermediateDirectories createIntermediates: Bool) throws {
+        try createDirectory(at: url, withIntermediateDirectories: createIntermediates, attributes: .none)
+    }
+
+    public func fileExists(at url: URL) -> Bool {
+        fileExists(atPath: url.filePath)
+    }
+
+    public func contents(at url: URL) -> Data? {
+        contents(atPath: url.filePath)
+    }
+
+    public func contentsOfDirectory(at url: URL) throws -> [String] {
+        try contentsOfDirectory(atPath: url.filePath)
+    }
+
+    func createFile(at url: URL, contents data: Data?) -> Bool {
+        createFile(atPath: url.filePath, contents: data, attributes: .none)
+    }
 }
 
 extension FileManager: FileManagerProtocol {}
