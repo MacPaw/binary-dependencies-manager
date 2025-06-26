@@ -14,28 +14,43 @@ public enum CLI {
             throw NSError(domain: "Can't find \(cliToolName) command line tool", code: 0)
         }
     }
-    
+
     /// Returns stdout returned by the execution of `executableURL` with given `arguments`.
     /// - Parameters:
     ///   - executableURL: An URL to the executable to run.
     ///   - arguments: A list of arguments to pass to the executable invocation.
     ///   - currentDirectoryURL: A working directory URL where executable will be launched.
     @discardableResult
-    static func run(executableURL: URL, arguments: [String], currentDirectoryURL: URL? = .none) throws -> String {
-        Logger.log("[Run] \(executableURL.path) \(arguments.joined(separator: " "))")
+    public static func run(executableURL: URL, arguments: [String], currentDirectoryURL: URL? = .none) throws -> String {
+        Logger.log("[Run] \(executableURL.filePath) \(arguments.joined(separator: " "))")
+
+        let stdoutPipe = Pipe()
+        let stderrPipe = Pipe()
 
         let process = Process()
         process.executableURL = executableURL
         process.arguments = arguments
         process.currentDirectoryURL = currentDirectoryURL
-        let pipe = Pipe()
-        process.standardOutput = pipe
+        process.standardOutput = stdoutPipe
+        process.standardError = stderrPipe
+
         try process.run()
         process.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        guard let stdout = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
-            throw NSError(domain: "Can't parse output from the \(executableURL.path)", code: 0)
+
+        let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+        guard let stdout = String(data: stdoutData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            throw GenericError("Can't parse stdout output from the \(executableURL.filePath)")
         }
+
+        let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+        guard let stderr = String(data: stderrData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
+            throw GenericError("Can't parse stderr output from the \(executableURL.filePath)")
+        }
+
+        guard process.terminationStatus == 0 else {
+            throw GenericError("Error running \(executableURL.filePath) with arguments \(arguments.joined(separator: " ")). Output:\n\(stdout).\nError:\n\(stderr).")
+        }
+
         return stdout
     }
 }
