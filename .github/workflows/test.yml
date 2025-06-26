@@ -1,0 +1,88 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    env:
+      package_name: binary-dependencies-manager
+
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            build-system: swift
+            swift-version: '6.1'
+          - os: ubuntu-latest
+            build-system: swift
+            swift-version: '6.1'
+          # Will uncomment when target names are fixed.
+          # - os: macos-15
+          #   build-system: xcodebuild
+          #   xcode-version: '16.4'
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Issues: https://github.com/swift-actions/setup-swift/issues/694, https://github.com/swift-actions/setup-swift/issues/739
+    # Author is focused on new action version: https://github.com/swift-actions/setup-swift/pull/710
+    # - name: Setup Swift (Linux)
+    #   if: matrix.os == 'ubuntu-latest'
+    #   uses: swift-actions/setup-swift@v2
+    #   with:
+    #     swift-version: ${{ matrix.swift-version }}
+
+    - name: Setup Xcode
+      if: matrix.build-system == 'xcodebuild'
+      run: sudo xcode-select -s '/Applications/Xcode_${{ matrix.xcode-version }}.app'
+
+    - name: Cache Swift packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build/artifacts
+          .build/checkouts
+          .build/repositories
+          .build/workspace-state.json
+          DerivedData/${{ env.package_name }}/SourcePackages
+          ~/Library/Caches/org.swift.swiftpm/
+          ~/.cache/org.swift.swiftpm/
+        key: ${{ runner.os }}-${{ matrix.build-system }}-spm-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.build-system }}-spm-
+
+    - name: Build with Swift Package Manager
+      if: matrix.build-system == 'swift'
+      run: swift build
+
+    - name: Test with Swift Package Manager
+      if: matrix.build-system == 'swift'
+      run: swift test
+
+    - name: Build with Xcodebuild
+      if: matrix.build-system == 'xcodebuild'
+      run: |
+        xcodebuild \
+          -scheme ${{ env.package_name }} \
+          -destination 'platform=macOS' \
+          -collect-test-diagnostics never \
+          RUN_CLANG_STATIC_ANALYZER=NO \
+          COMPILER_INDEX_STORE_ENABLE=NO \
+          build-for-testing
+
+    - name: Test with Xcodebuild
+      if: matrix.build-system == 'xcodebuild'
+      run: |
+        xcodebuild \
+          -scheme ${{ env.package_name }} \
+          -destination 'platform=macOS' \
+          -collect-test-diagnostics never \
+          RUN_CLANG_STATIC_ANALYZER=NO \
+          COMPILER_INDEX_STORE_ENABLE=NO \
+          test
