@@ -4,7 +4,7 @@ import Foundation
 import Utils
 
 @Suite("DependenciesResolverRunner Unzip Method Tests")
-struct DependenciesResolverRunnerUnzipTests {
+final class DependenciesResolverRunnerUnzipTests {
     let sampleDependency: Dependency = Dependency(
         repo: "org/repo",
         tag: "1.0.0",
@@ -22,6 +22,11 @@ struct DependenciesResolverRunnerUnzipTests {
         FileManager.default.temporaryDirectory
             .appending(pathComponents: "binary-dependency-manager-tests", UUID().uuidString, isDirectory: true)
     }()
+    
+    lazy var sampleAsset = sampleDependency.assets[0]
+    lazy var fileManager = FileManagerProtocolMock(tempDir: tempDir)
+    lazy var unarchiverMock = UnarchiverProtocolMock()
+    lazy var runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
 
     func makeRunner(
         fileManager: FileManagerProtocolMock = FileManagerProtocolMock(),
@@ -39,8 +44,6 @@ struct DependenciesResolverRunnerUnzipTests {
     }
 
     func setupFileManagerForUnzip(
-        _ fileManager: FileManagerProtocolMock,
-        dependency: Dependency,
         asset: Dependency.Asset,
         tempContents: [String] = ["Library.framework", "Info.plist"]
     ) {
@@ -56,10 +59,6 @@ struct DependenciesResolverRunnerUnzipTests {
     @Test("unzip skips when shouldResolve returns false")
     func unzip_skipsWhenShouldResolveReturnsFalse() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock()
-        let runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
-        let sampleAsset = sampleDependency.assets[0]
 
         // Set up hash file to make shouldResolve return false
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
@@ -76,12 +75,9 @@ struct DependenciesResolverRunnerUnzipTests {
     @Test("unzip creates temp directory and calls unarchiver")
     func unzip_createsDirectoryAndCallsUnarchiver() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock()
-        let runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
-        let sampleAsset = sampleDependency.assets[0]
+                
 
-        setupFileManagerForUnzip(fileManager, dependency: sampleDependency, asset: sampleAsset)
+        setupFileManagerForUnzip(asset: sampleAsset)
 
         // WHEN
         try runner.unzip(sampleDependency, asset: sampleAsset)
@@ -102,13 +98,10 @@ struct DependenciesResolverRunnerUnzipTests {
     @Test("unzip copies files from temp to output directory")
     func unzip_copiesFilesToOutput() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock()
-        let runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
-        let sampleAsset = sampleDependency.assets[0]
+                
         let tempContents = ["Library.framework", "Info.plist"]
 
-        setupFileManagerForUnzip(fileManager, dependency: sampleDependency, asset: sampleAsset, tempContents: tempContents)
+        setupFileManagerForUnzip(asset: sampleAsset, tempContents: tempContents)
 
         // WHEN
         try runner.unzip(sampleDependency, asset: sampleAsset)
@@ -130,13 +123,10 @@ struct DependenciesResolverRunnerUnzipTests {
     @Test("unzip removes existing files before copying")
     func unzip_removesExistingFiles() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock()
-        let runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
-        let sampleAsset = sampleDependency.assets[0]
+                
         let tempContents = ["Library.framework"]
 
-        setupFileManagerForUnzip(fileManager, dependency: sampleDependency, asset: sampleAsset, tempContents: tempContents)
+        setupFileManagerForUnzip(asset: sampleAsset, tempContents: tempContents)
 
         // Set up existing file in output directory
         let outputDir = runner.outputDirectoryURL(for: sampleDependency, asset: sampleAsset)
@@ -154,12 +144,7 @@ struct DependenciesResolverRunnerUnzipTests {
     @Test("unzip cleans up temporary directory")
     func unzip_cleansUpTempDirectory() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock()
-        let runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
-        let sampleAsset = sampleDependency.assets[0]
-
-        setupFileManagerForUnzip(fileManager, dependency: sampleDependency, asset: sampleAsset)
+        setupFileManagerForUnzip(asset: sampleAsset)
 
         // WHEN
         try runner.unzip(sampleDependency, asset: sampleAsset)
@@ -184,9 +169,7 @@ struct DependenciesResolverRunnerUnzipTests {
             tag: "1.0.0",
             assets: [assetWithoutContents]
         )
-
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock()
+        
         let runner = makeRunner(
             fileManager: fileManager,
             dependencies: [dependencyWithoutContents],
@@ -212,14 +195,15 @@ struct DependenciesResolverRunnerUnzipTests {
         let destURL1 = outputDir.appending(pathComponents: "file1.txt", isDirectory: false)
         #expect(fileManager.copiedFiles[sourceURL1] == destURL1)
     }
+    
+    func stubUnarchiverError(_ error: Error) {
+        self.unarchiverMock = UnarchiverProtocolMock(errorToThrow: error)
+    }
 
     @Test("unzip propagates unarchiver errors")
     func unzip_propagatesUnarchiverErrors() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock(errorToThrow: GenericError("Unzip failed"))
-        let runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
-        let sampleAsset = sampleDependency.assets[0]
+        stubUnarchiverError(GenericError("Unzip failed"))
 
         // WHEN & THEN
         #expect(throws: Error.self) {
@@ -237,13 +221,10 @@ struct DependenciesResolverRunnerUnzipTests {
     @Test("unzip removes temporary files after copying")
     func unzip_removesTemporaryFilesAfterCopying() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let unarchiverMock = UnarchiverProtocolMock()
-        let runner = makeRunner(fileManager: fileManager, unarchiverMock: unarchiverMock)
-        let sampleAsset = sampleDependency.assets[0]
+                
         let tempContents = ["Library.framework"]
 
-        setupFileManagerForUnzip(fileManager, dependency: sampleDependency, asset: sampleAsset, tempContents: tempContents)
+        setupFileManagerForUnzip(asset: sampleAsset, tempContents: tempContents)
 
         // WHEN
         try runner.unzip(sampleDependency, asset: sampleAsset)
