@@ -27,6 +27,8 @@ public protocol FileManagerProtocol {
     func contentsOfDirectory(atPath path: String) throws -> [String]
 
     func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey : Any]?) -> Bool
+
+    func copyItem(at srcURL: URL, to dstURL: URL) throws
 }
 
 extension FileManagerProtocol {
