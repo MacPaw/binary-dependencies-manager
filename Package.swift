@@ -49,5 +49,12 @@ let package = Package(
                 .target(name: "BinaryDependencyManager"),
             ]
         ),
+
+        .testTarget(
+            name: "UtilsTests",
+            dependencies: [
+                .target(name: "Utils"),
+            ]
+        ),
     ]
 )
