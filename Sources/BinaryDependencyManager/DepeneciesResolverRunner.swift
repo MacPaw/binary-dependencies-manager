@@ -121,7 +121,7 @@ public struct DependenciesResolverRunner {
 
     func unzip(_ dependency: Dependency, asset: Dependency.Asset) throws {
         guard try shouldResolve(dependency, asset: asset) else { return }
-        let tempRootDirURL = fileManager.temporaryDirectory.appending(pathComponents: "PrivateDownloads", isDirectory: true)
+        let tempRootDirURL = fileManager.privateDownloadsDirectoryURL
 
         let tempDir = tempRootDirURL.appending(pathComponents: uuidString, isDirectory: true)
         try createDirectoryIfNeeded(at: tempDir)
@@ -160,7 +160,7 @@ public struct DependenciesResolverRunner {
 
         Logger.log("[Unzip] Successfully unzipped \(dependency.repo) to \(outputDirectory.relativeFilePath)")
     }
-
+    
     func isFileDownloaded(for dependency: Dependency, asset: Dependency.Asset) throws -> Bool {
         let downloadedFileURL = downloadURL(for: dependency, asset: asset)
         guard fileManager.fileExists(at: downloadedFileURL) else { return false }
@@ -235,5 +235,12 @@ public struct DependenciesResolverRunner {
 
     private func calculateChecksum(fileURL: URL) throws -> String {
         try checksumCalculator.calculateChecksum(fileURL: fileURL)
+    }
+}
+
+
+extension FileManagerProtocol {
+    var privateDownloadsDirectoryURL: URL {
+        temporaryDirectory.appending(pathComponents: "PrivateDownloads", isDirectory: true)
     }
 }
