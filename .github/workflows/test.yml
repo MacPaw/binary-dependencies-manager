@@ -71,6 +71,7 @@ jobs:
         xcodebuild \
           -scheme ${{ env.package_name }} \
           -destination 'platform=macOS' \
+          -derivedDataPath DerivedData \
           -collect-test-diagnostics never \
           RUN_CLANG_STATIC_ANALYZER=NO \
           COMPILER_INDEX_STORE_ENABLE=NO \
@@ -82,6 +83,7 @@ jobs:
         xcodebuild \
           -scheme ${{ env.package_name }} \
           -destination 'platform=macOS' \
+          -derivedDataPath DerivedData \
           -collect-test-diagnostics never \
           RUN_CLANG_STATIC_ANALYZER=NO \
           COMPILER_INDEX_STORE_ENABLE=NO \
