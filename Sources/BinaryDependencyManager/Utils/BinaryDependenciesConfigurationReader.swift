@@ -128,3 +128,10 @@ protocol TopLevelDataDecoder {
 extension JSONDecoder: TopLevelDataDecoder {}
 extension YAMLDecoder: TopLevelDataDecoder {}
 
+#if !canImport(Combine)
+extension YAMLDecoder {
+    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
+        try self.decode(type, from: data, userInfo: [:])
+    }
+}
+#endif
