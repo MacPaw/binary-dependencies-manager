@@ -130,6 +130,10 @@ extension YAMLDecoder: TopLevelDataDecoder {}
 
 #if !canImport(Combine)
 extension YAMLDecoder {
+    // Yams adds a similar decode function only when Combine framework is available.
+    // When Combine is not available (e.g. Linux) YAMLDecoder doesn't conform to the TopLevelDataDecoder.
+    // Link: https://github.com/jpsim/Yams/blob/main/Sources/Yams/Decoder.swift#L501-L511
+
     func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
         try self.decode(type, from: data, userInfo: [:])
     }
