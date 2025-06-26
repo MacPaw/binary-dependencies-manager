@@ -33,35 +33,6 @@ extension CLI.GitHub {
         )
     }
 
-    /// Downloads the source code as a zip archive from the specified repo and release tag using `gh`.
-    ///
-    /// - Parameters:
-    ///   - repo: GitHub repository, e.g. "owner/repo".
-    ///   - tag: The release tag to download.
-    ///   - outputFilePath: The output file path for the downloaded archive.
-    /// - Throws: If the download fails.
-    public func downloadSourceCode(
-        repo: String,
-        tag: String,
-        outputFilePath: String
-    ) throws {
-        let arguments: [String] = [
-            ["release"],
-            ["download"],
-            ["\(tag)"],
-            ["--archive=zip"],
-            ["--repo", "\(repo)"],
-            ["--output", "\(outputFilePath)"]
-        ].flatMap { $0 }
-
-        Logger.log("[Download] ⬇️ \(repo) source code with tag \(tag) to \(outputFilePath)")
-
-        try run(
-            arguments: arguments,
-            currentDirectoryURL: outputFilePath.asFileURL.deletingLastPathComponent()
-        )
-    }
-
     /// Downloads a specific release asset from GitHub matching the provided pattern using `gh`.
     ///
     /// - Parameters:
