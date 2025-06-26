@@ -17,7 +17,7 @@ struct ResolveCommand: ParsableCommand {
     /// $ binary-dependencies-manager resolve --config ./.binary-dependencies.yaml
     /// $ binary-dependencies-manager resolve -c ./.binary-dependencies.yaml
     /// ```
-    @Option(name: [.customLong("config", withSingleDash: true), .short], help: "Path to the configuration file")
+    @Option(name: [.customLong("config"), .short], help: "Path to the configuration file")
     var configurationFilePath: String?
 
     /// Path to the output directory.
