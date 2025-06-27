@@ -16,11 +16,11 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
         let sut = makeReader(withFiles: ["/the/path/.binary-dependencies.yaml"])
         let url = try sut.resolveConfigurationFileURL("/the/path/.binary-dependencies.yaml")
         XCTAssertEqual(url.path, "/the/path/.binary-dependencies.yaml")
-        XCTAssertEqual(url.filePath, "/the/path/.binary-dependencies.yaml")
+        XCTAssertEqual(url.path(percentEncoded: false), "/the/path/.binary-dependencies.yaml")
     }
 
     func test_resolveConfigurationFileURL_fallbackToDefault() throws {
-        let sut = makeReader(withFiles: [".binary-dependencies.yaml".asFileURL.filePath])
+        let sut = makeReader(withFiles: [".binary-dependencies.yaml".asFileURL.path(percentEncoded: false)])
         let url = try sut.resolveConfigurationFileURL(nil)
         XCTAssertEqual(url.lastPathComponent, ".binary-dependencies.yaml")
     }
@@ -44,6 +44,7 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
 
     func test_readConfiguration_parsesYAML() throws {
         // GIVEN
+        let version = Version("0.0.1")
         let yamlString = """
         minimumVersion: 0.0.1
         outputDirectory: output/directory
@@ -54,7 +55,7 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
             pattern: pattern1
             checksum: "check1"
         """
-        let filePath = ".binary-dependencies.yaml".asFileURL.filePath
+        let filePath = ".binary-dependencies.yaml".asFileURL.path(percentEncoded: false)
         let data = Data(yamlString.utf8)
         let mockFileManager = FileManagerProtocolMock()
         mockFileManager.existingFiles = [filePath]
@@ -63,11 +64,11 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
         let sut = BinaryDependenciesConfigurationReader(fileManager: mockFileManager)
 
         // WHEN
-        let config = try sut.readConfiguration(at: .none)
+        let config = try sut.readConfiguration(at: .none, currentToolVersion: version)
 
         // THEN
         let expected = BinaryDependenciesConfiguration(
-            minimumVersion: Version(string: "0.0.1"),
+            minimumVersion: version,
             outputDirectory: "output/directory",
             cacheDirectory: "cache/directory",
             dependencies: [

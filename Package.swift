@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "binary-dependencies-manager",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v14),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -35,13 +35,17 @@ let package = Package(
         .target(
             name: "BinaryDependencyManager",
             dependencies: [
-                .product(name: "Crypto", package: "swift-crypto"),
                 "Utils",
                 .product(name: "Yams", package: "Yams"),
             ]
         ),
-        
-        .target(name: "Utils"),
+
+        .target(
+            name: "Utils",
+            dependencies: [
+                .product(name: "Crypto", package: "swift-crypto"),
+            ]
+        ),
 
         .testTarget(
             name: "BinaryDependencyManagerTests",
