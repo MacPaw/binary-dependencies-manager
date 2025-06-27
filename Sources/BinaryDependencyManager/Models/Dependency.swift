@@ -48,7 +48,7 @@ extension Dependency: Encodable {
 // MARK: - Dependency.Asset
 
 extension Dependency {
-    public struct Asset: Equatable {
+    public struct Asset: Equatable, Sendable {
         /// SHA-256 checksum of the zip archive.
         public let checksum: String
         /// Regex pattern to a specific artifact, if multiple artifacts are added to the the release assets.

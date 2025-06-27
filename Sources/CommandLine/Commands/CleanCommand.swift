@@ -5,7 +5,7 @@ import BinaryDependencyManager
 
 struct CleanCommand: ParsableCommand {
 
-    static var configuration = CommandConfiguration(commandName: "clean")
+    static let configuration = CommandConfiguration(commandName: "clean")
 
     /// Path to the output directory.
     ///

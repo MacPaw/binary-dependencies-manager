@@ -60,5 +60,9 @@ let package = Package(
                 .target(name: "Utils"),
             ]
         ),
+    ],
+
+    swiftLanguageVersions: [
+        .version("6.1")
     ]
 )
