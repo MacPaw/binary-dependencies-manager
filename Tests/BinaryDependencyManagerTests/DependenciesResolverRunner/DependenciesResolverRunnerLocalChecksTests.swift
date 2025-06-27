@@ -4,45 +4,11 @@ import Foundation
 import Utils
 import Crypto
 
-@Suite("DependenciesResolverRunner Core Local Checks Methods")
-struct DependenciesResolverRunnerLocalChecksTests {
-    let sampleDependency: Dependency = Dependency(
-        repo: "org/repo",
-        tag: "1.0.0",
-        assets: [
-            Dependency.Asset(
-                checksum: "abc123",
-                pattern: "asset.zip",
-                contents: nil,
-                outputDirectory: nil
-            )
-        ]
-    )
-
-    let tempDir: URL = {
-        FileManager.default.temporaryDirectory
-            .appending(components: "binary-dependency-manager-tests", UUID().uuidString, directoryHint: .isDirectory)
-    }()
-
-    let checksumCalculatorMock: ChecksumCalculatorProtocolMock = .init()
-
-    func makeRunner(fileManager: FileManagerProtocolMock, dependencies: [Dependency]? = .none) throws -> DependenciesResolverRunner {
-        DependenciesResolverRunner.mock(
-            dependencies: dependencies ?? [sampleDependency],
-            outputDirectoryURL: tempDir.appending(path: "output", directoryHint: .isDirectory),
-            cacheDirectoryURL: tempDir.appending(path: "cache", directoryHint: .isDirectory),
-            fileManager: fileManager,
-            uuidString: "mock-uuid",
-            checksumCalculator: checksumCalculatorMock
-        )
-    }
-
-    @Test("shouldResolve returns true when hash file is missing")
+extension DependenciesResolverRunnerTests {
+   @Test("shouldResolve returns true when hash file is missing")
     func shouldResolve_missingHashFile() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let runner = try makeRunner(fileManager: fileManager)
-        let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
+        let runner = makeRunner()
 
         // WHEN
         let shouldResolve = try runner.shouldResolve(sampleDependency, asset: sampleAsset)
@@ -54,9 +20,9 @@ struct DependenciesResolverRunnerLocalChecksTests {
     @Test("shouldResolve returns false when hash matches checksum")
     func shouldResolve_matchingHash() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let runner = try makeRunner(fileManager: fileManager)
-        let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
+        let runner = makeRunner()
+
+        // Mock valid hash file
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
         fileManager.contents[hashURL.path(percentEncoded: false)] = Data("abc123".utf8)
 
@@ -70,9 +36,9 @@ struct DependenciesResolverRunnerLocalChecksTests {
     @Test("shouldResolve returns true when hash file is present but mismatched")
     func shouldResolve_mismatchedHash() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let runner = try makeRunner(fileManager: fileManager)
-        let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
+        let runner = makeRunner()
+
+        // Mock invalid hash file
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
         fileManager.contents[hashURL.path(percentEncoded: false)] = Data("different".utf8)
 
@@ -86,17 +52,15 @@ struct DependenciesResolverRunnerLocalChecksTests {
     @Test("markAsResolved creates hash file with correct content")
     func markAsResolved_createsHashFile() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let runner = try makeRunner(fileManager: fileManager)
-        let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
+        let runner = makeRunner()
 
         // WHEN
         try runner.markAsResolved(sampleDependency, asset: sampleAsset)
 
+        // THEN
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
 
-        // THEN
-        // check if the hash file was created
+        // check if the hash file was created and contains valid hash data
         let hashData = fileManager.contents[hashURL.path(percentEncoded: false)]
         #expect(hashData == Data("abc123".utf8))
     }
@@ -104,9 +68,7 @@ struct DependenciesResolverRunnerLocalChecksTests {
     @Test("isFileDownloaded returns false if file not present")
     func isFileDownloaded_fileMissing() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let runner = try makeRunner(fileManager: fileManager)
-        let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
+        let runner = makeRunner()
 
         // WHEN
         let result = try runner.isFileDownloaded(for: sampleDependency, asset: sampleAsset)
@@ -118,9 +80,8 @@ struct DependenciesResolverRunnerLocalChecksTests {
     @Test("isFileDownloaded returns true if present and checksum matches")
     func isFileDownloaded_success() async throws {
         // GIVEN
-        let fileManager = FileManagerProtocolMock(tempDir: tempDir)
-        let runner = try makeRunner(fileManager: fileManager)
-        let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
+        let runner = makeRunner()
+
         let zipFileURL = runner.downloadURL(for: sampleDependency, asset: sampleAsset)
         // .zip file exists
         fileManager.existingFiles.insert(zipFileURL.path(percentEncoded: false))

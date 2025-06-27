@@ -3,44 +3,7 @@ import Foundation
 @testable import BinaryDependencyManager
 import Utils
 
-@Suite("DependenciesResolverRunner Download Method Tests")
-class DependenciesResolverRunnerDownloadTests {
-    let sampleAsset = Dependency.Asset(
-        checksum: "abc123",
-        pattern: "asset.zip",
-        contents: nil,
-        outputDirectory: nil
-    )
-
-    lazy var sampleDependency: Dependency = Dependency(
-        repo: "org/repo",
-        tag: "1.0.0",
-        assets: [
-            sampleAsset,
-        ]
-    )
-
-    lazy var fileManager = FileManagerProtocolMock(tempDir: tempDir)
-    let downloaderMock = BinaryDependenciesDownloaderMock()
-    let checksumCalculatorMock = ChecksumCalculatorProtocolMock()
-
-    let tempDir: URL = {
-        FileManager.default.temporaryDirectory
-            .appending(components: "binary-dependency-manager-tests", UUID().uuidString, directoryHint: .isDirectory)
-    }()
-    
-    func makeRunner() -> DependenciesResolverRunner {
-        DependenciesResolverRunner.mock(
-            dependencies: [sampleDependency],
-            outputDirectoryURL: tempDir.appending(path: "output", directoryHint: .isDirectory),
-            cacheDirectoryURL: tempDir.appending(path: "cache", directoryHint: .isDirectory),
-            fileManager: fileManager,
-            uuidString: "mock-uuid",
-            dependenciesDownloader: downloaderMock,
-            checksumCalculator: checksumCalculatorMock
-        )
-    }
-    
+extension DependenciesResolverRunnerTests {
     @Test("download creates directory and downloads file when not already downloaded")
     func download_success() async throws {
         // GIVEN
