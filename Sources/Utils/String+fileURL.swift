@@ -5,11 +5,6 @@ extension String {
     ///
     /// - Note: Used to avoid deprecation warnings.
     public var asFileURL: URL {
-        let url = if #available(macOS 13.0, *) {
-            URL(filePath: self)
-        } else {
-            URL(fileURLWithPath: self)
-        }
-        return url.standardizedFileURL.absoluteURL
+        URL(filePath: self).standardizedFileURL.absoluteURL
     }
 }

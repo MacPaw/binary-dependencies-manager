@@ -54,10 +54,10 @@ struct ResolveCommand: ParsableCommand {
         // Paths from CLI arguments take precedence over those from the configuration file.
         outputDirectoryPath = configurationReader
             .resolveOutputDirectoryURL(outputDirectoryPath ?? configuration.outputDirectory)
-            .filePath
+            .path(percentEncoded: false)
         cacheDirectoryPath = configurationReader
             .resolveCacheDirectoryURL(cacheDirectoryPath ?? configuration.cacheDirectory)
-            .filePath
+            .path(percentEncoded: false)
 
     }
 

@@ -21,7 +21,7 @@ struct DependenciesResolverRunnerLocalChecksTests {
 
     let tempDir: URL = {
         FileManager.default.temporaryDirectory
-            .appending(pathComponents: "binary-dependency-manager-tests", UUID().uuidString, isDirectory: true)
+            .appending(components: "binary-dependency-manager-tests", UUID().uuidString, directoryHint: .isDirectory)
     }()
 
     let checksumCalculatorMock: ChecksumCalculatorProtocolMock = .init()
@@ -29,8 +29,8 @@ struct DependenciesResolverRunnerLocalChecksTests {
     func makeRunner(fileManager: FileManagerProtocolMock, dependencies: [Dependency]? = .none) throws -> DependenciesResolverRunner {
         DependenciesResolverRunner.mock(
             dependencies: dependencies ?? [sampleDependency],
-            outputDirectoryURL: tempDir.appending(pathComponents: "output", isDirectory: true),
-            cacheDirectoryURL: tempDir.appending(pathComponents: "cache", isDirectory: true),
+            outputDirectoryURL: tempDir.appending(path: "output", directoryHint: .isDirectory),
+            cacheDirectoryURL: tempDir.appending(path: "cache", directoryHint: .isDirectory),
             fileManager: fileManager,
             uuidString: "mock-uuid",
             checksumCalculator: checksumCalculatorMock
@@ -58,7 +58,7 @@ struct DependenciesResolverRunnerLocalChecksTests {
         let runner = try makeRunner(fileManager: fileManager)
         let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
-        fileManager.contents[hashURL.filePath] = Data("abc123".utf8)
+        fileManager.contents[hashURL.path(percentEncoded: false)] = Data("abc123".utf8)
 
         // WHEN
         let shouldResolve = try runner.shouldResolve(sampleDependency, asset: sampleAsset)
@@ -74,7 +74,7 @@ struct DependenciesResolverRunnerLocalChecksTests {
         let runner = try makeRunner(fileManager: fileManager)
         let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
-        fileManager.contents[hashURL.filePath] = Data("different".utf8)
+        fileManager.contents[hashURL.path(percentEncoded: false)] = Data("different".utf8)
 
         // WHEN
         let shouldResolve = try runner.shouldResolve(sampleDependency, asset: sampleAsset)
@@ -97,7 +97,7 @@ struct DependenciesResolverRunnerLocalChecksTests {
 
         // THEN
         // check if the hash file was created
-        let hashData = fileManager.contents[hashURL.filePath]
+        let hashData = fileManager.contents[hashURL.path(percentEncoded: false)]
         #expect(hashData == Data("abc123".utf8))
     }
 
@@ -123,7 +123,7 @@ struct DependenciesResolverRunnerLocalChecksTests {
         let sampleAsset: Dependency.Asset = sampleDependency.assets[0]
         let zipFileURL = runner.downloadURL(for: sampleDependency, asset: sampleAsset)
         // .zip file exists
-        fileManager.existingFiles.insert(zipFileURL.filePath)
+        fileManager.existingFiles.insert(zipFileURL.path(percentEncoded: false))
         // checksum is correct
         checksumCalculatorMock.checksums[zipFileURL] = sampleAsset.checksum
 

@@ -32,10 +32,10 @@ struct CleanCommand: ParsableCommand {
 
         outputDirectoryPath = configurationReader
             .resolveOutputDirectoryURL(outputDirectoryPath)
-            .filePath
+            .path(percentEncoded: false)
         cacheDirectoryPath = configurationReader
             .resolveCacheDirectoryURL(cacheDirectoryPath)
-            .filePath
+            .path(percentEncoded: false)
     }
 
     func run() throws {

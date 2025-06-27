@@ -37,19 +37,19 @@ extension FileManagerProtocol {
     }
 
     public func fileExists(at url: URL) -> Bool {
-        fileExists(atPath: url.filePath)
+        fileExists(atPath: url.path(percentEncoded: false))
     }
 
     public func contents(at url: URL) -> Data? {
-        contents(atPath: url.filePath)
+        contents(atPath: url.path(percentEncoded: false))
     }
 
     public func contentsOfDirectory(at url: URL) throws -> [String] {
-        try contentsOfDirectory(atPath: url.filePath)
+        try contentsOfDirectory(atPath: url.path(percentEncoded: false))
     }
 
     func createFile(at url: URL, contents data: Data?) -> Bool {
-        createFile(atPath: url.filePath, contents: data, attributes: .none)
+        createFile(atPath: url.path(percentEncoded: false), contents: data, attributes: .none)
     }
 }
 

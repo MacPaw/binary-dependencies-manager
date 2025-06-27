@@ -22,7 +22,7 @@ public enum CLI {
     ///   - currentDirectoryURL: A working directory URL where executable will be launched.
     @discardableResult
     public static func run(executableURL: URL, arguments: [String], currentDirectoryURL: URL? = .none) throws -> String {
-        Logger.log("[Run] \(executableURL.filePath) \(arguments.joined(separator: " "))")
+        Logger.log("[Run] \(executableURL.path(percentEncoded: false)) \(arguments.joined(separator: " "))")
 
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()
@@ -39,16 +39,16 @@ public enum CLI {
 
         let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
         guard let stdout = String(data: stdoutData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
-            throw GenericError("Can't parse stdout output from the \(executableURL.filePath)")
+            throw GenericError("Can't parse stdout output from the \(executableURL.path(percentEncoded: false))")
         }
 
         let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
         guard let stderr = String(data: stderrData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else {
-            throw GenericError("Can't parse stderr output from the \(executableURL.filePath)")
+            throw GenericError("Can't parse stderr output from the \(executableURL.path(percentEncoded: false))")
         }
 
         guard process.terminationStatus == 0 else {
-            throw GenericError("Error running \(executableURL.filePath) with arguments \(arguments.joined(separator: " ")). Output:\n\(stdout).\nError:\n\(stderr).")
+            throw GenericError("Error running \(executableURL.path(percentEncoded: false)) with arguments \(arguments.joined(separator: " ")). Output:\n\(stdout).\nError:\n\(stderr).")
         }
 
         return stdout

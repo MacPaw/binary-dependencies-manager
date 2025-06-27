@@ -21,11 +21,11 @@ struct DependenciesResolverRunnerFileURLTests {
             cacheDirectoryURL: cacheRoot
         )
         let downloadsDir = runner.downloadsDirectoryURL
-        #expect(downloadsDir.filePath.hasSuffix("/cache/.downloads/"))
-        #expect(downloadsDir.filePath.hasPrefix(FileManager.default.currentDirectoryPath))
+        #expect(downloadsDir.path(percentEncoded: false).hasSuffix("/cache/.downloads/"))
+        #expect(downloadsDir.path(percentEncoded: false).hasPrefix(FileManager.default.currentDirectoryPath))
         #expect(
             downloadsDir == FileManager.default.currentDirectoryPath.asFileURL
-                .appending(pathComponents: "cache", ".downloads", isDirectory: true)
+                .appending(components: "cache", ".downloads", directoryHint: .isDirectory)
         )
     }
 
@@ -37,8 +37,8 @@ struct DependenciesResolverRunnerFileURLTests {
             cacheDirectoryURL: "/cache".asFileURL
         )
         let downloadsDir = runner.downloadsDirectoryURL
-        #expect(downloadsDir.filePath.hasSuffix("/cache/.downloads/"))
-        #expect(!downloadsDir.filePath.hasPrefix(FileManager.default.currentDirectoryPath))
+        #expect(downloadsDir.path(percentEncoded: false).hasSuffix("/cache/.downloads/"))
+        #expect(!downloadsDir.path(percentEncoded: false).hasPrefix(FileManager.default.currentDirectoryPath))
         #expect(downloadsDir == "/cache/.downloads/".asFileURL)
         #expect(downloadsDir.path == "/cache/.downloads")
     }
@@ -51,7 +51,7 @@ struct DependenciesResolverRunnerFileURLTests {
             cacheDirectoryURL: cacheRoot
         )
         let url = runner.downloadDirectoryURL(for: dependency, asset: asset)
-        #expect(url.filePath.hasSuffix("/cache/.downloads/owner/repo/1.0.0/Lib/"))
+        #expect(url.path(percentEncoded: false).hasSuffix("/cache/.downloads/owner/repo/1.0.0/Lib/"))
         let downloadURL = runner.downloadURL(for: dependency, asset: asset)
         #expect(downloadURL.lastPathComponent == "abc123.zip")
     }
@@ -64,7 +64,7 @@ struct DependenciesResolverRunnerFileURLTests {
             cacheDirectoryURL: cacheRoot
         )
         let out = runner.outputDirectoryURL(for: dependency, asset: asset)
-        #expect(out.filePath.hasSuffix("/output/owner/repo/Lib/"))
+        #expect(out.path(percentEncoded: false).hasSuffix("/output/owner/repo/Lib/"))
     }
 
     @Test
@@ -75,7 +75,7 @@ struct DependenciesResolverRunnerFileURLTests {
             cacheDirectoryURL: cacheRoot
         )
         let hashURL = try runner.outputDirectoryHashFile(for: dependency, asset: asset)
-        #expect(hashURL.filePath.hasSuffix("/output/owner/repo/Lib/.lib_zip_Frameworks_Lib_xcframework.hash"))
+        #expect(hashURL.path(percentEncoded: false).hasSuffix("/output/owner/repo/Lib/.lib_zip_Frameworks_Lib_xcframework.hash"))
     }
 
     @Test
@@ -97,7 +97,7 @@ struct DependenciesResolverRunnerFileURLTests {
     func test_createDirectoryIfNeeded_skips_if_exists() async throws {
         let mock = FileManagerProtocolMock()
         let url = URL(fileURLWithPath: "/exists/dir")
-        mock.existingFiles.insert(url.filePath)
+        mock.existingFiles.insert(url.path(percentEncoded: false))
         let runner = DependenciesResolverRunner.mock(
             dependencies: [dependency],
             outputDirectoryURL: outputRoot,
