@@ -1,14 +1,15 @@
 import Foundation
 
 extension URL {
-
     /// Returns a URL constructed by appending the given variadic list of path components to self.
     ///
     /// - Note: Used to avoid deprecation warning for newer macOS.
     ///
     /// - Parameters:
-    ///   - components: The list of components to add.
+    ///   - pathComponents: The list of the path components to add.
     ///   - isDirectory: A `Bool` flag to whether this URL will point to a directory.
+    ///
+    /// - Returns: The URL with the appended path components.
     public func appending(pathComponents: String..., isDirectory: Bool) -> URL {
         var result = self
 
@@ -19,10 +20,11 @@ extension URL {
             for path in pathComponents[0..<max(pathComponents.count - 1, 0)] {
                 result.append(path: path, directoryHint: .isDirectory)
             }
-            if !pathComponents.isEmpty {
-                result.append(path: pathComponents.last!, directoryHint: isDirectory ? .isDirectory : .inferFromPath)
+            if let lastComponent = pathComponents.last {
+                result.append(path: lastComponent, directoryHint: isDirectory ? .isDirectory : .inferFromPath)
             }
-        } else {
+        }
+        else {
             result.appendPathComponent(pathComponents.joined(separator: "/"), isDirectory: isDirectory)
         }
         return result
@@ -34,7 +36,8 @@ extension URL {
     public var filePath: String {
         if #available(macOS 13.0, *) {
             path(percentEncoded: false)
-        } else {
+        }
+        else {
             path
         }
     }

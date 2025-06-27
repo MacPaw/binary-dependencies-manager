@@ -45,10 +45,10 @@ struct URLFilePathTests {
     }
 
     @Test("filePath returns correct path with or without percent encoding on different platforms")
-    func test_filePath() {
+    func test_filePath() throws {
         let original = "/tmp/some file.txt"
         let encoded = original.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? ""
-        let url = URL(string: "file://" + encoded)!
+        let url = try #require(URL(string: "file://" + encoded))
         // filePath should match the normal path
         #expect(url.filePath.hasSuffix("some file.txt"), "filePath should remove percent encoding if present")
     }
