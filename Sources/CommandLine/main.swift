@@ -1,3 +1,9 @@
+#if os(Linux)
+// Glibc import must be the first import.
+// Issue: https://github.com/swiftlang/swift/issues/77866
+@preconcurrency import Glibc
+#endif
+
 import ArgumentParser
 import Foundation
 import Utils
@@ -6,8 +12,6 @@ import Utils
 #if os(macOS)
 setbuf(__stdoutp, nil)
 #elseif os(Linux)
-@preconcurrency import Glibc // https://github.com/swiftlang/swift/issues/77866
-
 setbuf(stdout, nil)
 #endif
 
