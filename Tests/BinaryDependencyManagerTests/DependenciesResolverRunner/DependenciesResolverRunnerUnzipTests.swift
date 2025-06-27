@@ -95,7 +95,10 @@ final class DependenciesResolverRunnerUnzipTests {
         let unzipCall = unarchiverMock.unzipCalls[0]
         let downloadURL = runner.downloadURL(for: sampleDependency, asset: sampleAsset)
         #expect(unzipCall.archivePath == downloadURL.filePath)
-        #expect(unzipCall.outputFilePath == tempDir.filePath)
+        #expect(
+            unzipCall.outputFilePath == fileManager.privateDownloadsDirectoryURL
+                .appending(pathComponents: runner.uuidString, isDirectory: true).filePath
+        )
     }
 
     @Test("unzip copies files from temp to output directory")
