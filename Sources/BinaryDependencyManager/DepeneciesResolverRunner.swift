@@ -91,7 +91,7 @@ public struct DependenciesResolverRunner {
         let checksum = try runThrowable("Calculating checksum") { try calculateChecksum(fileURL: downloadFileURL) }
 
         guard checksum == asset.checksum else {
-            throw NSError(domain: "Checksum is incorrect. \(checksum) != \(asset.checksum)", code: 0)
+            throw GenericError("Checksum is incorrect. \(checksum) != \(asset.checksum)")
         }
     }
 
@@ -184,7 +184,7 @@ public struct DependenciesResolverRunner {
         downloadsDirectoryURL
             .appending(components: dependency.repo, dependency.tag, asset.outputDirectory ?? "", directoryHint: .isDirectory)
     }
-
+    
     /// Location of the file where the downloaded dependency will be placed
     func downloadURL(for dependency: Dependency, asset: Dependency.Asset) -> URL {
         downloadDirectoryURL(for: dependency, asset: asset)
