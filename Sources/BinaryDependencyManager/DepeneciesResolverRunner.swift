@@ -85,7 +85,7 @@ public struct DependenciesResolverRunner {
             repo: dependency.repo,
             tag: dependency.tag,
             pattern: asset.pattern,
-            outputFilePath: downloadFileURL.filePath
+            outputFilePath: downloadFileURL.path(percentEncoded: false)
         )
 
         let checksum = try runThrowable("Calculating checksum") { try calculateChecksum(fileURL: downloadFileURL) }
@@ -123,7 +123,7 @@ public struct DependenciesResolverRunner {
         guard try shouldResolve(dependency, asset: asset) else { return }
         let tempRootDirURL = fileManager.privateDownloadsDirectoryURL
 
-        let tempDir = tempRootDirURL.appending(pathComponents: uuidString, isDirectory: true)
+        let tempDir = tempRootDirURL.appending(path: uuidString, directoryHint: .isDirectory)
         try createDirectoryIfNeeded(at: tempDir)
 
         defer {
@@ -132,10 +132,10 @@ public struct DependenciesResolverRunner {
 
         // Unpack downloaded file to the temporary dir, so we can traverse through the contents and copy only specified `asset.contents`.
         let downloadedFileURL = downloadURL(for: dependency, asset: asset)
-        try unarchiver.unzip(archivePath: downloadedFileURL.filePath, outputFilePath: tempDir.filePath)
+        try unarchiver.unzip(archivePath: downloadedFileURL.path(percentEncoded: false), outputFilePath: tempDir.path(percentEncoded: false))
 
         // if we have additional contents directory from dependency, we should use it
-        let contentsDirectoryURL = tempDir.appending(pathComponents: asset.contents ?? "", isDirectory: true)
+        let contentsDirectoryURL = tempDir.appending(path: asset.contents ?? "", directoryHint: .isDirectory)
 
         let contents = try fileManager.contentsOfDirectory(at: contentsDirectoryURL)
 
@@ -144,8 +144,8 @@ public struct DependenciesResolverRunner {
         try createDirectoryIfNeeded(at: outputDirectory)
 
         for item in contents {
-            let downloadedFileURL = contentsDirectoryURL.appending(pathComponents: item, isDirectory: false)
-            let destinationFileURL = outputDirectory.appending(pathComponents: item, isDirectory: false)
+            let downloadedFileURL = contentsDirectoryURL.appending(path: item, directoryHint: .notDirectory)
+            let destinationFileURL = outputDirectory.appending(path: item, directoryHint: .notDirectory)
             if fileManager.fileExists(at: destinationFileURL) {
                 Logger.log("[Unzip] Removing \(destinationFileURL.relativeFilePath).")
                 try fileManager.removeItem(at: destinationFileURL)
@@ -182,17 +182,18 @@ public struct DependenciesResolverRunner {
     /// Location of directory where the downloaded dependency will be placed
     func downloadDirectoryURL(for dependency: Dependency, asset: Dependency.Asset) -> URL {
         downloadsDirectoryURL
-            .appending(pathComponents: dependency.repo, dependency.tag, asset.outputDirectory ?? "", isDirectory: true)
+            .appending(components: dependency.repo, dependency.tag, asset.outputDirectory ?? "", directoryHint: .isDirectory)
     }
 
     /// Location of the file where the downloaded dependency will be placed
     func downloadURL(for dependency: Dependency, asset: Dependency.Asset) -> URL {
         downloadDirectoryURL(for: dependency, asset: asset)
-            .appending(pathComponents: asset.checksum + ".zip", isDirectory: false)
+            .appending(path: asset.checksum + ".zip", directoryHint: .notDirectory)
     }
 
     func outputDirectoryURL(for dependency: Dependency, asset: Dependency.Asset) -> URL {
-        outputDirectoryURL.appending(pathComponents: dependency.repo, asset.outputDirectory ?? "", isDirectory: true)
+        outputDirectoryURL
+            .appending(components: dependency.repo, asset.outputDirectory ?? "", directoryHint: .isDirectory)
     }
 
     func outputDirectoryHashFile(for dependency: Dependency, asset: Dependency.Asset) throws -> URL {
@@ -209,11 +210,12 @@ public struct DependenciesResolverRunner {
 
         filename = ".\(filename).hash"
 
-        return outputDirectoryURL(for: dependency, asset: asset).appending(pathComponents: filename, isDirectory: false)
+        return outputDirectoryURL(for: dependency, asset: asset)
+            .appending(path: filename, directoryHint: .notDirectory)
     }
 
     var downloadsDirectoryURL: URL {
-        cacheDirectoryURL.appending(pathComponents: ".downloads", isDirectory: true)
+        cacheDirectoryURL.appending(path: ".downloads", directoryHint: .isDirectory)
     }
 
     func createDirectoryIfNeeded(at url: URL) throws {
@@ -241,6 +243,6 @@ public struct DependenciesResolverRunner {
 
 extension FileManagerProtocol {
     var privateDownloadsDirectoryURL: URL {
-        temporaryDirectory.appending(pathComponents: "PrivateDownloads", isDirectory: true)
+        temporaryDirectory.appending(path: "PrivateDownloads", directoryHint: .isDirectory)
     }
 }

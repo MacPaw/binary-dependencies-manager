@@ -20,7 +20,7 @@ final class DependenciesResolverRunnerUnzipTests {
 
     let tempDir: URL = {
         FileManager.default.temporaryDirectory
-            .appending(pathComponents: "binary-dependency-manager-tests", UUID().uuidString, isDirectory: true)
+            .appending(components: "binary-dependency-manager-tests", UUID().uuidString, directoryHint: .isDirectory)
     }()
     
     lazy var sampleAsset = sampleDependency.assets[0]
@@ -36,8 +36,8 @@ final class DependenciesResolverRunnerUnzipTests {
     ) -> DependenciesResolverRunner {
         DependenciesResolverRunner.mock(
             dependencies: dependencies ?? [sampleDependency],
-            outputDirectoryURL: tempDir.appending(pathComponents: "output", isDirectory: true),
-            cacheDirectoryURL: tempDir.appending(pathComponents: "cache", isDirectory: true),
+            outputDirectoryURL: tempDir.appending(path: "output", directoryHint: .isDirectory),
+            cacheDirectoryURL: tempDir.appending(path: "cache", directoryHint: .isDirectory),
             fileManager: fileManager,
             uuidString: "mock-uuid",
             unarchiver: unarchiverMock
@@ -50,14 +50,14 @@ final class DependenciesResolverRunnerUnzipTests {
         tempContents: [String] = ["Library.framework", "Info.plist"]
     ) -> URL {
         let privateURLs = fileManager.privateDownloadsDirectoryURL
-        let unzipingDirectory: URL = privateURLs.appending(pathComponents: "mock-uuid", isDirectory: true)
+        let unzipingDirectory: URL = privateURLs.appending(path: "mock-uuid", directoryHint: .isDirectory)
 
         // Make shouldResolve return true (no hash file exists)
         // This is the default behavior when hash file doesn't exist
 
         // Set up temp directory contents after unzipping
         fileManager.directoryContents = [
-            unzipingDirectory.appending(pathComponents: asset.contents ?? "", isDirectory: true).filePath: tempContents
+            unzipingDirectory.appending(path: asset.contents ?? "", directoryHint: .isDirectory).path(percentEncoded: false): tempContents
         ]
         return unzipingDirectory
     }
@@ -68,7 +68,7 @@ final class DependenciesResolverRunnerUnzipTests {
 
         // Set up hash file to make shouldResolve return false
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
-        fileManager.contents[hashURL.filePath] = Data(sampleAsset.checksum.utf8)
+        fileManager.contents[hashURL.path(percentEncoded: false)] = Data(sampleAsset.checksum.utf8)
 
         // WHEN
         try runner.unzip(sampleDependency, asset: sampleAsset)
@@ -94,10 +94,11 @@ final class DependenciesResolverRunnerUnzipTests {
         #expect(unarchiverMock.unzipCalls.count == 1)
         let unzipCall = unarchiverMock.unzipCalls[0]
         let downloadURL = runner.downloadURL(for: sampleDependency, asset: sampleAsset)
-        #expect(unzipCall.archivePath == downloadURL.filePath)
+        #expect(unzipCall.archivePath == downloadURL.path(percentEncoded: false))
         #expect(
             unzipCall.outputFilePath == fileManager.privateDownloadsDirectoryURL
-                .appending(pathComponents: runner.uuidString, isDirectory: true).filePath
+                .appending(path: runner.uuidString, directoryHint: .isDirectory)
+                .path(percentEncoded: false)
         )
     }
 
@@ -118,10 +119,10 @@ final class DependenciesResolverRunnerUnzipTests {
         #expect(fileManager.createdDirectories.contains(outputDir))
 
         // Verify files were copied
-        let contentsDir = unzippingDirectory.appending(pathComponents: sampleAsset.contents ?? "", isDirectory: true)
+        let contentsDir = unzippingDirectory.appending(path: sampleAsset.contents ?? "", directoryHint: .isDirectory)
         for item in tempContents {
-            let sourceURL = contentsDir.appending(pathComponents: item, isDirectory: false)
-            let destinationURL = outputDir.appending(pathComponents: item, isDirectory: false)
+            let sourceURL = contentsDir.appending(path: item, directoryHint: .notDirectory)
+            let destinationURL = outputDir.appending(path: item, directoryHint: .notDirectory)
             #expect(fileManager.copiedFiles[sourceURL] == destinationURL)
         }
     }
@@ -136,8 +137,8 @@ final class DependenciesResolverRunnerUnzipTests {
 
         // Set up existing file in output directory
         let outputDir = runner.outputDirectoryURL(for: sampleDependency, asset: sampleAsset)
-        let existingFileURL = outputDir.appending(pathComponents: "Library.framework", isDirectory: false)
-        fileManager.existingFiles.insert(existingFileURL.filePath)
+        let existingFileURL = outputDir.appending(path: "Library.framework", directoryHint: .notDirectory)
+        fileManager.existingFiles.insert(existingFileURL.path(percentEncoded: false))
 
         // WHEN
         try runner.unzip(sampleDependency, asset: sampleAsset)
@@ -183,9 +184,12 @@ final class DependenciesResolverRunnerUnzipTests {
         )
 
         // Set up temp directory contents (no subdirectory)
-        let tempRootDir = tempDir.appending(pathComponents: "PrivateDownloads", "mock-uuid", isDirectory: true)
+        let tempRootDir = tempDir.appending(
+            components: "PrivateDownloads", "mock-uuid", assetWithoutContents.contents ?? "",
+            directoryHint: .isDirectory
+        )
         fileManager.directoryContents = [
-            tempRootDir.filePath: ["file1.txt", "file2.txt"]
+            tempRootDir.path(percentEncoded: false): ["file1.txt", "file2.txt"]
         ]
 
         // WHEN
@@ -195,11 +199,14 @@ final class DependenciesResolverRunnerUnzipTests {
         // Verify unarchiver was called
         #expect(unarchiverMock.unzipCalls.count == 1)
 
-        // Verify files were copied from temp root (no contents subdirectory)
+        // Verify both files are copied from temp root (no contents subdirectory)
         let outputDir = runner.outputDirectoryURL(for: dependencyWithoutContents, asset: assetWithoutContents)
-        let sourceURL1 = tempRootDir.appending(pathComponents: "file1.txt", isDirectory: false)
-        let destURL1 = outputDir.appending(pathComponents: "file1.txt", isDirectory: false)
+        let sourceURL1 = tempRootDir.appending(path: "file1.txt", directoryHint: .notDirectory)
+        let destURL1 = outputDir.appending(path: "file1.txt", directoryHint: .notDirectory)
+        let sourceURL2 = tempRootDir.appending(path: "file2.txt", directoryHint: .notDirectory)
+        let destURL2 = outputDir.appending(path: "file2.txt", directoryHint: .notDirectory)
         #expect(fileManager.copiedFiles[sourceURL1] == destURL1)
+        #expect(fileManager.copiedFiles[sourceURL2] == destURL2)
     }
     
     func stubUnarchiverError(_ error: Error) {
@@ -220,7 +227,7 @@ final class DependenciesResolverRunnerUnzipTests {
         #expect(unarchiverMock.unzipCalls.count == 1)
 
         // Verify temp directory cleanup still happens even on error
-        let tempRootDir = fileManager.temporaryDirectory.appending(pathComponents: "PrivateDownloads", isDirectory: true)
+        let tempRootDir = fileManager.temporaryDirectory.appending(path: "PrivateDownloads", directoryHint: .isDirectory)
         #expect(fileManager.removedItems.contains(tempRootDir))
     }
 
@@ -237,8 +244,8 @@ final class DependenciesResolverRunnerUnzipTests {
 
         // THEN
         // Verify temporary files were removed after copying
-        let contentsDir = unzpipingDirectory.appending(pathComponents: sampleAsset.contents ?? "", isDirectory: true)
-        let tempFileURL = contentsDir.appending(pathComponents: "Library.framework", isDirectory: false)
+        let contentsDir = unzpipingDirectory.appending(path: sampleAsset.contents ?? "", directoryHint: .isDirectory)
+        let tempFileURL = contentsDir.appending(path: "Library.framework", directoryHint: .notDirectory)
         #expect(fileManager.removedItems.contains(tempFileURL))
     }
 }

@@ -16,11 +16,11 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
         let sut = makeReader(withFiles: ["/the/path/.binary-dependencies.yaml"])
         let url = try sut.resolveConfigurationFileURL("/the/path/.binary-dependencies.yaml")
         XCTAssertEqual(url.path, "/the/path/.binary-dependencies.yaml")
-        XCTAssertEqual(url.filePath, "/the/path/.binary-dependencies.yaml")
+        XCTAssertEqual(url.path(percentEncoded: false), "/the/path/.binary-dependencies.yaml")
     }
 
     func test_resolveConfigurationFileURL_fallbackToDefault() throws {
-        let sut = makeReader(withFiles: [".binary-dependencies.yaml".asFileURL.filePath])
+        let sut = makeReader(withFiles: [".binary-dependencies.yaml".asFileURL.path(percentEncoded: false)])
         let url = try sut.resolveConfigurationFileURL(nil)
         XCTAssertEqual(url.lastPathComponent, ".binary-dependencies.yaml")
     }
@@ -55,7 +55,7 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
             pattern: pattern1
             checksum: "check1"
         """
-        let filePath = ".binary-dependencies.yaml".asFileURL.filePath
+        let filePath = ".binary-dependencies.yaml".asFileURL.path(percentEncoded: false)
         let data = Data(yamlString.utf8)
         let mockFileManager = FileManagerProtocolMock()
         mockFileManager.existingFiles = [filePath]

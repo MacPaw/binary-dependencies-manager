@@ -20,7 +20,7 @@ struct DependenciesResolverRunnerDownloadTests {
     
     let tempDir: URL = {
         FileManager.default.temporaryDirectory
-            .appending(pathComponents: "binary-dependency-manager-tests", UUID().uuidString, isDirectory: true)
+            .appending(components: "binary-dependency-manager-tests", UUID().uuidString, directoryHint: .isDirectory)
     }()
     
     func makeRunner(
@@ -31,8 +31,8 @@ struct DependenciesResolverRunnerDownloadTests {
     ) -> DependenciesResolverRunner {
         DependenciesResolverRunner.mock(
             dependencies: dependencies ?? [sampleDependency],
-            outputDirectoryURL: tempDir.appending(pathComponents: "output", isDirectory: true),
-            cacheDirectoryURL: tempDir.appending(pathComponents: "cache", isDirectory: true),
+            outputDirectoryURL: tempDir.appending(path: "output", directoryHint: .isDirectory),
+            cacheDirectoryURL: tempDir.appending(path: "cache", directoryHint: .isDirectory),
             fileManager: fileManager,
             uuidString: "mock-uuid",
             dependenciesDownloader: downloaderMock,
@@ -71,7 +71,7 @@ struct DependenciesResolverRunnerDownloadTests {
         #expect(downloadCall.repo == sampleDependency.repo)
         #expect(downloadCall.tag == sampleDependency.tag)
         #expect(downloadCall.pattern == sampleAsset.pattern)
-        #expect(downloadCall.outputFilePath == downloadURL.filePath)
+        #expect(downloadCall.outputFilePath == downloadURL.path(percentEncoded: false))
         
         // Verify checksum was calculated
         #expect(checksumCalculatorMock.checksumCalls.contains(downloadURL))
@@ -92,7 +92,7 @@ struct DependenciesResolverRunnerDownloadTests {
         let downloadURL = runner.downloadURL(for: sampleDependency, asset: sampleAsset)
         
         // File already exists
-        fileManager.existingFiles.insert(downloadURL.filePath)
+        fileManager.existingFiles.insert(downloadURL.path(percentEncoded: false))
         // Checksum matches
         checksumCalculatorMock.checksums[downloadURL] = sampleAsset.checksum
         
@@ -145,7 +145,7 @@ struct DependenciesResolverRunnerDownloadTests {
         let downloadURL = runner.downloadURL(for: sampleDependency, asset: sampleAsset)
         
         // File already exists
-        fileManager.existingFiles.insert(downloadURL.filePath)
+        fileManager.existingFiles.insert(downloadURL.path(percentEncoded: false))
         // First checksum call returns wrong checksum, second returns correct
         checksumCalculatorMock.checksums[downloadURL] = "wrong_checksum"
         

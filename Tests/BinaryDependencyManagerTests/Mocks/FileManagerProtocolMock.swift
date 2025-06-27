@@ -5,7 +5,7 @@ class FileManagerProtocolMock: FileManagerProtocol {
     var copiedFiles: [URL: URL] = [:]
     func copyItem(at srcURL: URL, to dstURL: URL) throws {
         copiedFiles[srcURL] = dstURL
-        existingFiles.insert(dstURL.filePath)
+        existingFiles.insert(dstURL.path(percentEncoded: false))
         contentsMap[dstURL] = contentsMap[srcURL]
     }
 
@@ -41,7 +41,7 @@ class FileManagerProtocolMock: FileManagerProtocol {
     func contents(at url: URL) -> Data? { contentsMap[url] }
     func removeItem(at url: URL) throws {
         removedItems.append(url)
-        existingFiles.remove(url.filePath)
+        existingFiles.remove(url.path(percentEncoded: false))
         contentsMap[url] = .none
     }
 
