@@ -22,7 +22,7 @@ let package = Package(
     ],
 
     targets: [
-        
+
         .executableTarget(
             name: "CommandLine",
             dependencies: [
@@ -31,7 +31,7 @@ let package = Package(
                 "Utils",
             ]
         ),
-        
+
         .target(
             name: "BinaryDependencyManager",
             dependencies: [
@@ -60,5 +60,9 @@ let package = Package(
                 .target(name: "Utils"),
             ]
         ),
+    ],
+
+    swiftLanguageVersions: [
+        .version("6")
     ]
 )

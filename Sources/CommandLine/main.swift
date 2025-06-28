@@ -1,3 +1,9 @@
+#if os(Linux)
+// Glibc import must be the first import.
+// Issue: https://github.com/swiftlang/swift/issues/77866
+@preconcurrency import Glibc
+#endif
+
 import ArgumentParser
 import Foundation
 import Utils
@@ -11,9 +17,9 @@ setbuf(stdout, nil)
 
 struct BinaryDependenciesManager: ArgumentParser.ParsableCommand {
     /// The version of the binary dependencies manager.
-    static var version: Version = "0.0.4"
+    static let version: Version = "0.0.4"
 
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         abstract: "Binary dependencies resolver",
         version: version.description,
         subcommands: [

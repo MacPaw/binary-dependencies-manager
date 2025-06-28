@@ -17,6 +17,7 @@ jobs:
           - os: macos-15
             build-system: swift
             swift-version: '6.1'
+            xcode-version: '16.4'
           - os: ubuntu-latest
             build-system: swift
             swift-version: '6.1'
@@ -39,7 +40,9 @@ jobs:
     #     swift-version: ${{ matrix.swift-version }}
 
     - name: Setup Xcode
-      if: matrix.build-system == 'xcodebuild'
+      # Select Xcode for swift and xcodebuild.
+      # We need 6.1 swift and setup-swift@v2 is broken.
+      if: matrix.xcode-version != ''
       run: sudo xcode-select -s '/Applications/Xcode_${{ matrix.xcode-version }}.app'
 
     - name: Cache Swift packages

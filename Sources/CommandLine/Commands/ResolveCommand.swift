@@ -5,7 +5,7 @@ import Yams
 import Utils
 
 struct ResolveCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(
+    static let configuration = CommandConfiguration(
         commandName: "resolve",
         version: BinaryDependenciesManager.configuration.version
     )
