@@ -187,7 +187,7 @@ final class DependenciesResolverRunnerUnzipTests {
         let tempRootDir = tempDir.appending(
             components: "PrivateDownloads", "mock-uuid", assetWithoutContents.contents ?? "",
             directoryHint: .isDirectory
-        )
+        ).standardizedFileURL
         fileManager.directoryContents = [
             tempRootDir.path(percentEncoded: false): ["file1.txt", "file2.txt"]
         ]
