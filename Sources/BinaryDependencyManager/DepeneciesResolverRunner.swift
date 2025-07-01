@@ -135,7 +135,7 @@ public struct DependenciesResolverRunner {
         try unarchiver.unzip(archivePath: downloadedFileURL.path(percentEncoded: false), outputFilePath: tempDir.path(percentEncoded: false))
 
         // if we have additional contents directory from dependency, we should use it
-        let contentsDirectoryURL = tempDir.appending(path: asset.contents ?? "", directoryHint: .isDirectory)
+        let contentsDirectoryURL = tempDir.appending(path: asset.contents ?? "", directoryHint: .isDirectory).standardizedFileURL
 
         let contents = try fileManager.contentsOfDirectory(at: contentsDirectoryURL)
 
@@ -183,6 +183,7 @@ public struct DependenciesResolverRunner {
     func downloadDirectoryURL(for dependency: Dependency, asset: Dependency.Asset) -> URL {
         downloadsDirectoryURL
             .appending(components: dependency.repo, dependency.tag, asset.outputDirectory ?? "", directoryHint: .isDirectory)
+            .standardizedFileURL
     }
     
     /// Location of the file where the downloaded dependency will be placed
@@ -194,6 +195,7 @@ public struct DependenciesResolverRunner {
     func outputDirectoryURL(for dependency: Dependency, asset: Dependency.Asset) -> URL {
         outputDirectoryURL
             .appending(components: dependency.repo, asset.outputDirectory ?? "", directoryHint: .isDirectory)
+            .standardizedFileURL
     }
 
     func outputDirectoryHashFile(for dependency: Dependency, asset: Dependency.Asset) throws -> URL {

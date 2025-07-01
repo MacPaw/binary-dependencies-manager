@@ -19,7 +19,7 @@ extension DependenciesResolverRunnerTests {
         #expect(downloadsDir.path(percentEncoded: false).hasSuffix("/\(relativePath)/.downloads/"))
         #expect(
             downloadsDir == FileManager.default.currentDirectoryPath.asFileURL
-                .appending(components: relativePath, ".downloads", directoryHint: .isDirectory)
+                .appending(path: "relative/cache/.downloads", directoryHint: .isDirectory)
         )
     }
 
@@ -51,11 +51,9 @@ extension DependenciesResolverRunnerTests {
         #expect(
             outputDir == FileManager.default.currentDirectoryPath.asFileURL
                 .appending(
-                    components: relativePath,
-                    sampleDependency.repo,
-                    sampleAsset.outputDirectory ?? "",
+                    components: "relative/output/org/repo", sampleAsset.outputDirectory ?? "",
                     directoryHint: .isDirectory
-                )
+                ).standardizedFileURL
         )
     }
 
@@ -70,9 +68,9 @@ extension DependenciesResolverRunnerTests {
         // THEN
         #expect(
             downloadURL == tempDir.appending(
-                components: "cache/.downloads", sampleDependency.repo, sampleDependency.tag, sampleAsset.outputDirectory ?? "", sampleAsset.checksum + ".zip",
+                path: "cache/.downloads/org/repo/1.0.0/abc123.zip",
                 directoryHint: .notDirectory
-            )
+            ).standardizedFileURL
         )
     }
 
@@ -85,10 +83,9 @@ extension DependenciesResolverRunnerTests {
         let hashURL = try runner.outputDirectoryHashFile(for: sampleDependency, asset: sampleAsset)
 
         // THEN
-        let hashFilename = "." + (sampleAsset.pattern?.replacingOccurrences(of: ".", with: "_") ?? "") + ".hash"
         #expect(
             hashURL == tempDir.appending(
-                components: "output", sampleDependency.repo, sampleAsset.outputDirectory ?? "", hashFilename,
+                path: "output/org/repo/.asset_zip.hash",
                 directoryHint: .notDirectory
             )
         )
