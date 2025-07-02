@@ -54,9 +54,3 @@ jobs:
           echo "swift-version=${{ inputs.swift-version }}" >> $GITHUB_OUTPUT
           echo "xcode-version=${{ inputs.xcode-version }}" >> $GITHUB_OUTPUT
           echo "macOS-runner-os=${{ inputs.macOS-runner-os }}" >> $GITHUB_OUTPUT
-
-          # Also set as environment variables for current job
-          echo "PACKAGE_NAME=${{ inputs.package-name }}" >> $GITHUB_ENV
-          echo "SWIFT_VERSION=${{ inputs.swift-version }}" >> $GITHUB_ENV
-          echo "XCODE_VERSION=${{ inputs.xcode-version }}" >> $GITHUB_ENV
-          echo "MACOS_RUNNER_OS=${{ inputs.macOS-runner-os }}" >> $GITHUB_ENV
