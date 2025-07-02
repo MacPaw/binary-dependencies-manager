@@ -130,9 +130,9 @@ dependencies:
 
 ## Release
 
-You have two options:
-1. Create a new tag locally and push it.
-2. Create a release manually on the GitHub.
+1. Bump the `BinaryDependenciesManager` version in the `Sources/CommandLine/main.swift`.
+2. Merge changes to the main branch.
+3. Create a release manually on the GitHub or create tag locally and push it to the remote.
 
 After tag is created the `Build Multi-Platform Binary` action will be executed. It will build and add all binaries to the release assets.
 
