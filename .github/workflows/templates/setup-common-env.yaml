@@ -2,16 +2,16 @@ name: 'Setup Common Environment'
 description: 'Set up common environment variables for all workflows'
 inputs:
   package-name:
-    description: 'Name of the Swift package'
-    required: true
+    description: 'Swift package name'
+    required: false
     default: 'binary-dependencies-manager'
   swift-version:
-    description: 'Default Swift version'
-    required: true
+    description: 'Swift version'
+    required: false
     default: '6.1'
   xcode-version:
-    description: 'Default Xcode version'
-    required: true
+    description: 'Xcode version'
+    required: false
     default: '16.4'
 outputs:
   package-name:
