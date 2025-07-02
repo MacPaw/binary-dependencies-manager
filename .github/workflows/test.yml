@@ -7,7 +7,17 @@ on:
       - chore/refactor
 
 jobs:
+  load_env:
+    runs-on: ubuntu-latest
+    outputs:
+      swift-version: ${{ steps.common-env.outputs.swift-version }}
+      xcode-version: ${{ steps.common-env.outputs.xcode-version }}
+    steps:
+      - name: Setup Common Environment
+        id: common-env
+        uses: ./.github/workflows/templates/setup-common-env.yaml
   test:
+    needs: load_env
     env:
       package_name: binary-dependencies-manager
 
@@ -16,14 +26,14 @@ jobs:
         include:
           - os: macos-15
             build-system: swift
-            swift-version: '6.1'
-            xcode-version: '16.4'
+            swift-version: ${{ needs.load_env.outputs.swift-version }}
+            xcode-version: ${{ needs.load_env.outputs.xcode-version }}
           - os: ubuntu-latest
             build-system: swift
-            swift-version: '6.1'
+            swift-version: ${{ needs.load_env.outputs.swift-version }}
           - os: macos-15
             build-system: xcodebuild
-            xcode-version: '16.4'
+            xcode-version: ${{ needs.load_env.outputs.xcode-version }}
 
     runs-on: ${{ matrix.os }}
 
