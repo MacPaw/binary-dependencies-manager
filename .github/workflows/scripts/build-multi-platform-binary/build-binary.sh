@@ -33,7 +33,7 @@ elif [ "$PLATFORM" == "macOS" ] && [[ "$ARCH" == "arm64" || "$ARCH" == "x86_64" 
     # Verify the binary
     echo "Verifying binary..."
     file build/$BINARY_NAME
-elif [ "$PLATFORM" == "linux" ] && [ "$ARCH" == "x86_64" ]; then
+elif [ "$PLATFORM" == "Linux" ] && [ "$ARCH" == "x86_64" ]; then
     # Build for Linux x86_64
     echo "Building for Linux x86_64..."
     swift build --configuration release
@@ -54,7 +54,7 @@ cd build
 if [ "$PLATFORM" == "macOS" ]; then
     # Use ditto on macOS
     ditto -c -k --sequesterRsrc --keepParent $BINARY_NAME "../$ARCHIVE_NAME"
-elif [ "$PLATFORM" == "linux" ]; then
+elif [ "$PLATFORM" == "Linux" ]; then
     # Use zip on Linux
     zip "../$ARCHIVE_NAME" $BINARY_NAME
 else

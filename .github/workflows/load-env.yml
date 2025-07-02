@@ -1,0 +1,56 @@
+name: Load Environment
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        description: 'Swift package name'
+        type: string
+        required: false
+        default: 'binary-dependencies-manager'
+      swift-version:
+        description: 'Swift version'
+        type: string
+        required: false
+        default: '6.1'
+      xcode-version:
+        description: 'Xcode version'
+        type: string
+        required: false
+        default: '16.4'
+      macOS-runner-os:
+        description: 'macOS runner OS (macos-15, macos-latest)'
+        type: string
+        required: false
+        default: 'macos-15'
+    outputs:
+      package-name:
+        description: 'Swift package name'
+        value: ${{ jobs.load-env.outputs.package-name }}
+      swift-version:
+        description: 'Swift version'
+        value: ${{ jobs.load-env.outputs.swift-version }}
+      xcode-version:
+        description: 'Xcode version'
+        value: ${{ jobs.load-env.outputs.xcode-version }}
+      macOS-runner-os:
+        description: 'macOS runner OS'
+        value: ${{ jobs.load-env.outputs.macOS-runner-os }}
+
+jobs:
+  load-env:
+    runs-on: ubuntu-latest
+    outputs:
+      package-name: ${{ steps.common-env.outputs.package-name }}
+      swift-version: ${{ steps.common-env.outputs.swift-version }}
+      xcode-version: ${{ steps.common-env.outputs.xcode-version }}
+      macOS-runner-os: ${{ steps.common-env.outputs.macOS-runner-os }}
+    steps:
+      - name: Setup Common Environment
+        id: common-env
+        shell: bash
+        run: |
+          echo "package-name=${{ inputs.package-name }}" >> $GITHUB_OUTPUT
+          echo "swift-version=${{ inputs.swift-version }}" >> $GITHUB_OUTPUT
+          echo "xcode-version=${{ inputs.xcode-version }}" >> $GITHUB_OUTPUT
+          echo "macOS-runner-os=${{ inputs.macOS-runner-os }}" >> $GITHUB_OUTPUT

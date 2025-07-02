@@ -4,26 +4,29 @@ on:
   pull_request:
     branches:
       - main
-      - chore/refactor
 
 jobs:
+  load-env:
+    uses: ./.github/workflows/load-env.yml
+
   test:
+    needs: 'load-env'
     env:
-      package_name: binary-dependencies-manager
+      package_name: ${{ needs.load-env.outputs.package-name }}
 
     strategy:
       matrix:
         include:
-          - os: macos-15
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             build-system: swift
-            swift-version: '6.1'
-            xcode-version: '16.4'
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
           - os: ubuntu-latest
             build-system: swift
-            swift-version: '6.1'
-          - os: macos-15
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             build-system: xcodebuild
-            xcode-version: '16.4'
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
 
     runs-on: ${{ matrix.os }}
 
@@ -31,34 +34,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Issues: https://github.com/swift-actions/setup-swift/issues/694, https://github.com/swift-actions/setup-swift/issues/739
-    # Author is focused on new action version: https://github.com/swift-actions/setup-swift/pull/710
-    # - name: Setup Swift (Linux)
-    #   if: matrix.os == 'ubuntu-latest'
-    #   uses: swift-actions/setup-swift@v2
-    #   with:
-    #     swift-version: ${{ matrix.swift-version }}
-
-    - name: Setup Xcode
-      # Select Xcode for swift and xcodebuild.
-      # We need 6.1 swift and setup-swift@v2 is broken.
-      if: matrix.xcode-version != ''
-      run: sudo xcode-select -s '/Applications/Xcode_${{ matrix.xcode-version }}.app'
-
-    - name: Cache Swift packages
-      uses: actions/cache@v4
+    - name: Select Swift Version
+      uses: ./.github/workflows/templates/select-swift-version/
       with:
-        path: |
-          .build/artifacts
-          .build/checkouts
-          .build/repositories
-          .build/workspace-state.json
-          DerivedData/${{ env.package_name }}/SourcePackages
-          ~/Library/Caches/org.swift.swiftpm/
-          ~/.cache/org.swift.swiftpm/
-        key: ${{ runner.os }}-${{ matrix.build-system }}-spm-${{ hashFiles('**/Package.resolved') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ matrix.build-system }}-spm-
+        xcode-version: ${{ matrix.xcode-version }}
+        swift-version: ${{ matrix.swift-version }}
+
+    - name: Cache Swift Packages
+      uses: ./.github/workflows/templates/swift-cache/
+      with:
+        package-name: ${{ env.package_name }}
+        build-system: ${{ matrix.build-system }}
 
     - name: Build with Swift Package Manager
       if: matrix.build-system == 'swift'

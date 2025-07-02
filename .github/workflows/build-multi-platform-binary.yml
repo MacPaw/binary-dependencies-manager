@@ -9,6 +9,9 @@ on:
       - '*'
 
 jobs:
+  load-env:
+    uses: ./.github/workflows/load-env.yml
+
   create-release:
     runs-on: ubuntu-latest
     outputs:
@@ -33,22 +36,27 @@ jobs:
       run: node ./.github/workflows/scripts/build-multi-platform-binary/check-release.js
 
   build-binary:
-    needs: create-release
+    needs: [load-env, create-release]
+    env:
+      package_name: ${{ needs.load-env.outputs.package-name }}
     strategy:
       matrix:
         include:
-          - os: macos-latest
-            platform: macOS
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             arch: universal
-          - os: macos-latest
-            platform: macOS
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             arch: arm64
-          - os: macos-latest
-            platform: macOS
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
+          - os: ${{ needs.load-env.outputs.macOS-runner-os }}
             arch: x86_64
+            xcode-version: ${{ needs.load-env.outputs.xcode-version }}
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
           - os: ubuntu-latest
-            platform: linux
             arch: x86_64
+            swift-version: ${{ needs.load-env.outputs.swift-version }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -60,13 +68,25 @@ jobs:
     - name: Checkout tag
       run: git checkout ${{ needs.create-release.outputs.tag_name }}
 
+    - name: Select Swift Version
+      uses: ./.github/workflows/templates/select-swift-version/
+      with:
+        xcode-version: ${{ matrix.xcode-version }}
+        swift-version: ${{ matrix.swift-version }}
+
+    - name: Cache Swift Packages
+      uses: ./.github/workflows/templates/swift-cache/
+      with:
+        package-name: ${{ env.package_name }}
+        build-system: swift
+
     - name: Check if asset already exists
       id: check-asset
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
         TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
-        PLATFORM: ${{ matrix.platform }}
+        PLATFORM: ${{ runner.os }}
         ARCH: ${{ matrix.arch }}
       run: node ./.github/workflows/scripts/build-multi-platform-binary/check-asset.js
 
@@ -75,7 +95,7 @@ jobs:
       if: steps.check-asset.outputs.asset_exists == 'false'
       env:
         TAG_NAME: ${{ needs.create-release.outputs.tag_name }}
-        PLATFORM: ${{ matrix.platform }}
+        PLATFORM: ${{ runner.os }}
         ARCH: ${{ matrix.arch }}
       run: ./.github/workflows/scripts/build-multi-platform-binary/build-binary.sh
 
