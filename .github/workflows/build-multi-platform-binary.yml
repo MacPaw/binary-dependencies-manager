@@ -69,7 +69,7 @@ jobs:
       run: git checkout ${{ needs.create-release.outputs.tag_name }}
 
     - name: Select Swift Version
-      uses: ./.github/workflows/templates/select-swift-version.yaml
+      uses: ./.github/workflows/templates/select-swift-version/
       with:
         xcode-version: ${{ matrix.xcode-version }}
         swift-version: ${{ matrix.swift-version }}
