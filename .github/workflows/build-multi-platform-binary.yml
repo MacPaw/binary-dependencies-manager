@@ -75,7 +75,7 @@ jobs:
         swift-version: ${{ matrix.swift-version }}
 
     - name: Cache Swift Packages
-      uses: ./.github/workflows/templates/swift-cache.yaml
+      uses: ./.github/workflows/templates/swift-cache/
       with:
         package-name: ${{ env.package_name }}
         build-system: swift
