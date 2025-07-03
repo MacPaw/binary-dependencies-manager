@@ -17,24 +17,13 @@ binary-dependencies-manager is a Swift-based tool for managing and resolving bin
 
 ### mise
 
-1. Add the env to your `.mise.toml` file to allow mise to use GitHub API token to download release assets from the private repo:
-    ```toml
-    [env]
-    MISE_GITHUB_TOKEN = "{{ exec(command='$(which gh || mise which gh) auth token || echo \"\"') }}"
-    ```
-    > ⚠️ This requires installed and authenticated GitHub CLI (`gh`) tool.
-
-    > ℹ️ mise runs `sh` and PATH env var is not resolved, that's why we need to use `which gh`.
-    >
-    > `|| echo ""` will not lead to immediate fail while mise is resolving ENV, but will fail when mise attempts to download the binary from the GitHub, if GitHub CLI has no authentication info.
-
-2. Add `binary-dependencies-manager` to the `[tools]` section in your `.mise.toml`
+1. Add `binary-dependencies-manager` to the `[tools]` section in your `.mise.toml`
     ```toml
     [tools]
     "ubi:MacPaw/binary-dependencies-manager" = "latest"
     ```
 
-3. Run `mise install`.
+2. Run `mise install`.
 
 ### Manual
 1. Clone the repository.
