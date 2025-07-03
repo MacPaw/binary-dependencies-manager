@@ -1,5 +1,7 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
+//
+// Not using 6.1 because CodeQL default runner is not ubuntu-latest and doesn't support it yet (Checked: 2025-07-03).
 
 import PackageDescription
 
@@ -62,7 +64,8 @@ let package = Package(
         ),
     ],
 
-    swiftLanguageModes: [
-        .v6
+    swiftLanguageVersions: [
+        .v5,
+        .version("6") // swift-tools 5.10 has no .v6 enum case yet.
     ]
 )
