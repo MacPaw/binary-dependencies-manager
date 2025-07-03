@@ -1,5 +1,8 @@
 name: Load Environment
 
+permissions:
+  contents: none
+
 on:
   workflow_call:
     inputs:
