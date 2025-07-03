@@ -1,7 +1,18 @@
 // swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 //
-// Not using 6.1 because CodeQL default runner is not ubuntu-latest and doesn't support it yet (Checked: 2025-07-03).
+// Not using 6.1 because CodeQL default runner for Swift is `macos-latest`.
+// `macos-latest` is macOS 14 (Sonoma). Runner has Xcode 15.4 as default, Swift version 5.10.
+// We can't select Xcode version for the default CodeQL checks.
+// That's why we can't use swift-tools 6.0 or higher.
+// Using 6.0 or higher would require to create a custom workflow for CodeQL checks.
+//
+// Quick links:
+//  * GHA runners: https://docs.github.com/en/actions/how-tos/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+//  * Images configs: https://github.com/actions/runner-images/tree/main/images/macos
+//
+// Checked: 2025-07-03.
+
 
 import PackageDescription
 
