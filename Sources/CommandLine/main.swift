@@ -17,7 +17,7 @@ setbuf(stdout, nil)
 
 struct BinaryDependenciesManager: ArgumentParser.ParsableCommand {
     /// The version of the binary dependencies manager.
-    static let version: Version = "0.1.0-rc.1"
+    static let version: Version = "0.1.0"
 
     static let configuration = CommandConfiguration(
         abstract: "Binary dependencies resolver",
