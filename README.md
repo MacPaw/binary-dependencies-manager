@@ -1,5 +1,7 @@
 # binary-dependencies-manager
 
+![Binary Dependencies Manager](.github/header.png)
+
 binary-dependencies-manager is a Swift-based tool for managing and resolving binary dependencies from GitHub releases. It automates the process of downloading, verifying, and extracting binary artifacts (such as frameworks or libraries) from GitHub repositories, making it easy to integrate prebuilt binaries into your projects.
 
 ## Features
