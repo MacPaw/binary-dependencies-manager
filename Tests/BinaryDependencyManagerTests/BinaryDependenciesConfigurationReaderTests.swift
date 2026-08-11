@@ -81,5 +81,29 @@ final class BinaryDependenciesConfigurationReaderTests: XCTestCase {
         )
         XCTAssertEqual(config, expected)
     }
+
+    func test_info_withPattern() {
+        let sut = makeReader(withFiles: [])
+        let dependency = Dependency(repo: "test/repo", tag: "1.0.0", assets: [])
+        let asset = Dependency.Asset(checksum: "check1", pattern: "Asset.xcframework.zip")
+
+        XCTAssertEqual(sut.info(for: dependency, asset: asset), "test/repo(1.0.0) Asset.xcframework.zip")
+    }
+
+    func test_info_withPatternAndOutputDirectory() {
+        let sut = makeReader(withFiles: [])
+        let dependency = Dependency(repo: "test/repo", tag: "1.0.0", assets: [])
+        let asset = Dependency.Asset(checksum: "check1", pattern: "Asset.framework.zip", outputDirectory: "sandbox")
+
+        XCTAssertEqual(sut.info(for: dependency, asset: asset), "test/repo(1.0.0) Asset.framework.zip -> sandbox")
+    }
+
+    func test_info_withoutPattern_fallsBackToContents() {
+        let sut = makeReader(withFiles: [])
+        let dependency = Dependency(repo: "test/repo", tag: "1.0.0", assets: [])
+        let asset = Dependency.Asset(checksum: "check1", contents: "Products")
+
+        XCTAssertEqual(sut.info(for: dependency, asset: asset), "test/repo(1.0.0) Products")
+    }
 }
 
