@@ -10,6 +10,27 @@ public struct Dependency: Equatable {
     public let assets: [Asset]
 }
 
+// MARK: - Description
+
+extension Dependency {
+    /// Builds a single-line description of one of this dependency's assets,
+    /// e.g. `owner/repo@1.0.0 Asset.zip -> output/dir`.
+    ///
+    /// The ref after `@` is whatever the configuration pins — a release tag or a commit hash.
+    /// - Parameter asset: The asset to describe.
+    /// - Returns: A string with the repo, ref, asset pattern (or contents), and output directory when present.
+    public func info(for asset: Asset) -> String {
+        var components: [String] = ["\(repo)@\(tag)"]
+        if let pattern = asset.pattern ?? asset.contents {
+            components.append(pattern)
+        }
+        if let outputDirectory = asset.outputDirectory {
+            components.append("-> \(outputDirectory)")
+        }
+        return components.joined(separator: " ")
+    }
+}
+
 // MARK: Decodable
 
 extension Dependency: Decodable {

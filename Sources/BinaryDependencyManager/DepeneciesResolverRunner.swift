@@ -64,6 +64,11 @@ public struct DependenciesResolverRunner {
         for dependency in dependenciesToResolve {
             try runThrowable("Resolving \(dependency.repo)") { try resolve(dependency, downloader: dependenciesDownloader) }
         }
+
+        let totalAssets = dependencies.reduce(0) { $0 + $1.assets.count }
+        let resolvedAssets = dependenciesToResolve.reduce(0) { $0 + $1.assets.count }
+        let upToDateAssets = totalAssets - resolvedAssets
+        Logger.log("[Summary] \(totalAssets) assets: \(upToDateAssets) up-to-date, \(resolvedAssets) resolved")
     }
 
     func resolve(_ dependency: Dependency, downloader: any BinaryDependenciesDownloader) throws {
@@ -71,6 +76,7 @@ public struct DependenciesResolverRunner {
             try runThrowable("Downloading \(dependency.repo)") { try download(dependency, asset: asset, with: downloader) }
             try runThrowable("Unzipping \(dependency.repo)") { try unzip(dependency, asset: asset) }
             try markAsResolved(dependency, asset: asset)
+            Logger.log("[Resolve] \(dependency.info(for: asset)). Resolved ✅")
         }
     }
 
@@ -101,7 +107,8 @@ public struct DependenciesResolverRunner {
         guard let hash = String(bytes: hashFileData, encoding: .utf8) else { return true }
 
         if hash == asset.checksum {
-            Logger.log("[Resolve] \(outputDirectoryHashFile.relativeFilePath). Skipped ✅")
+            Logger.verbose("[Resolve] \(dependency.info(for: asset)) matches hash file \(outputDirectoryHashFile.relativeFilePath).")
+            Logger.log("[Resolve] \(dependency.info(for: asset)). Skipped ✅")
             return false
         }
         return true
