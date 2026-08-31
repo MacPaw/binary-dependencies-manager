@@ -109,7 +109,7 @@ public struct BinaryDependenciesConfigurationReader {
         let dependencies = configuration.dependencies
         let dependenciesInfo = dependencies
             .flatMap { dependency in
-                dependency.assets.map { "   \(info(for: dependency, asset: $0))" }
+                dependency.assets.map { "   \(dependency.info(for: $0))" }
             }
             .joined(separator: "\n")
         Logger.log(
@@ -117,22 +117,6 @@ public struct BinaryDependenciesConfigurationReader {
         )
 
         return configuration
-    }
-
-    /// Builds a single-line description of a dependency asset, e.g. `owner/repo(1.0.0) Asset.zip -> output/dir`.
-    /// - Parameters:
-    ///   - dependency: The dependency the asset belongs to.
-    ///   - asset: The asset to describe.
-    /// - Returns: A string with the repo, tag, asset pattern (or contents), and output directory when present.
-    func info(for dependency: Dependency, asset: Dependency.Asset) -> String {
-        var components: [String] = ["\(dependency.repo)(\(dependency.tag))"]
-        if let pattern = asset.pattern ?? asset.contents {
-            components.append(pattern)
-        }
-        if let outputDirectory = asset.outputDirectory {
-            components.append("-> \(outputDirectory)")
-        }
-        return components.joined(separator: " ")
     }
 }
 

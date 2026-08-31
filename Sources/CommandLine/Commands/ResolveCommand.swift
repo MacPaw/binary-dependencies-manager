@@ -39,6 +39,15 @@ struct ResolveCommand: ParsableCommand {
     @Option(name: [.customLong("cache")], help: "Path to the cache directory")
     var cacheDirectoryPath: String?
 
+    /// Prints additional diagnostic output, such as which hash file was matched when an asset is skipped.
+    ///
+    /// Example:
+    /// ```
+    /// $ binary-dependencies-manager resolve --verbose
+    /// ```
+    @Flag(name: [.customLong("verbose")], help: "Print additional diagnostic output")
+    var verbose = false
+
     /// Dependencies to resolve.
     var configuration: BinaryDependenciesConfiguration?
 
@@ -74,6 +83,8 @@ struct ResolveCommand: ParsableCommand {
             // Should never happen, because we validate the configuration in `validate()` method.
             throw GenericError("Cache directory path is not initialized")
         }
+
+        Logger.isVerbose = verbose
 
         let dependenciesResolver = DependenciesResolverRunner(
             dependencies: configuration.dependencies,
