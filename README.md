@@ -11,7 +11,7 @@ binary-dependencies-manager is a Swift-based tool for managing and resolving bin
 - Support for selecting specific artifacts, subdirectories, and custom output paths
 
 ## Requirements
-- Swift 5.9+
+- Swift 6.2+ (to build from source)
 - macOS 11+
 - [GitHub CLI (`gh`)](https://cli.github.com/) must be installed, authenticated and available in your PATH
 
