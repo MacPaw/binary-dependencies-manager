@@ -15,12 +15,12 @@ on:
         description: 'Swift version'
         type: string
         required: false
-        default: '6.1'
+        default: '6.2'
       xcode-version:
         description: 'Xcode version'
         type: string
         required: false
-        default: '16.4'
+        default: '26.0'
       macOS-runner-os:
         description: 'macOS runner OS (macos-15, macos-latest)'
         type: string
