@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/load-env.yml
 
   create-release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     outputs:
       tag_name: ${{ steps.get-tag.outputs.tag_name }}
       release_id: ${{ steps.check-release.outputs.release_id }}

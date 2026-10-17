@@ -42,7 +42,7 @@ on:
 
 jobs:
   load-env:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     outputs:
       package-name: ${{ steps.common-env.outputs.package-name }}
       swift-version: ${{ steps.common-env.outputs.swift-version }}
