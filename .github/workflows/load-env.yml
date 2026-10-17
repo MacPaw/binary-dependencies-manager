@@ -42,7 +42,7 @@ on:
 
 jobs:
   load-env:
-    runs-on: ${{ vars.LTSH_ARC_CI_FALLBACK_TO_GHA == 'true' && 'ubuntu-latest' || fromJSON(format('{{"group":"{0}"}}', vars.RUNNER_GROUP_STANDARD || 'ltsh-staging-standard-4vcpu')) }}
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     outputs:
       package-name: ${{ steps.common-env.outputs.package-name }}
       swift-version: ${{ steps.common-env.outputs.swift-version }}

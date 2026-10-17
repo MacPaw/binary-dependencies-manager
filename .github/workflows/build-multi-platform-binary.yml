@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/load-env.yml
 
   create-release:
-    runs-on: ${{ vars.LTSH_ARC_CI_FALLBACK_TO_GHA == 'true' && 'ubuntu-latest' || fromJSON(format('{{"group":"{0}"}}', vars.RUNNER_GROUP_STANDARD || 'ltsh-staging-standard-4vcpu')) }}
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '{}').standard || 'ubuntu-latest' }}
     outputs:
       tag_name: ${{ steps.get-tag.outputs.tag_name }}
       release_id: ${{ steps.check-release.outputs.release_id }}
